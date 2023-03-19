@@ -1,10 +1,9 @@
 from __future__ import annotations
-from abc import ABC
 from typing import Literal
 import random
 
 
-class Graph(ABC):
+class Graph():
     """a graph with a given representation"""
 
     def __init__(self,
@@ -216,6 +215,33 @@ class Graph(ABC):
                         nr_krawedzi = nr_krawedzi+1
                     znaleziono = False
         return output
+
+    def find_components(self):
+        """Function, which finds components of the graph and prints the number of the largest one.
+        Its argument is a neighbour list."""
+
+        def components_r(nr: int, v: int, g: list[list[int]], comp: list) -> None:
+            for i in range(len(g[v])):
+                if comp[g[v][i]-1] == -1:
+                    comp[g[v][i]-1] = nr
+                    components_r(nr, g[v][i]-1, g, comp)
+
+        adjacency_list = self.convert_to('adjlist').data
+
+        nr = 0
+        comp = []
+        for i in range(len(adjacency_list)):
+            comp.append(-1)
+        for i in range(len(adjacency_list)):
+            if comp[i] == -1:
+                nr = nr+1
+                comp[i] = nr
+                components_r(nr, i, adjacency_list, comp)
+
+        components = [[] for _ in range(nr)]
+        for vertex_index, component_index in enumerate(comp):
+            components[component_index - 1].append(vertex_index + 1)
+        return components
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Graph):
