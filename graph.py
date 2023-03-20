@@ -340,6 +340,35 @@ class Graph():
             components[component_index - 1].append(vertex_index + 1)
         return components
 
+    def find_hamiltonian_cycle(self):
+        adjacency_list = self.convert_to('adjlist').data
+        return self._dfs_hamilton_recursive(adjacency_list, 1, [0 for _ in adjacency_list], [])
+
+    @classmethod
+    def _dfs_hamilton_recursive(cls, adjacency_list: list[list[int]], vertex: int,
+                                visited: list[int], s: list) -> list[int] | None:
+        """A function that returns a Hamiltonian cycle of the graph if one exists,
+        or None otherwise"""
+        s.append(vertex)
+        if len(s) < len(adjacency_list):
+            visited[vertex-1] = True
+            for i in range(len(adjacency_list[vertex-1])):
+                if not visited[adjacency_list[vertex-1][i]-1]:
+                    result = cls._dfs_hamilton_recursive(
+                        adjacency_list, adjacency_list[vertex-1][i], visited, s)
+                    if result is not None:
+                        return result
+            visited[vertex-1] = False
+            s.pop()
+        else:
+            for i in range(len(adjacency_list[vertex-1])):
+                if adjacency_list[vertex-1][i]-1 == 0:
+                    return s
+
+            s.pop()
+
+        return None
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Graph):
             return False

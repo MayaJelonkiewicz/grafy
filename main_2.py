@@ -20,6 +20,11 @@ def task3(arguments):
     print(*max(input_graph.find_components(), key=len))
 
 
+def task6(arguments):
+    input_graph = Graph.parse(arguments.input_representation, sys.stdin.read())
+    print('tak' if input_graph.find_hamiltonian_cycle() is not None else 'nie')
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="task", required=True)
@@ -32,6 +37,10 @@ def main():
     subparser_3.add_argument("-i", "--input-representation",
                              choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
 
+    subparser_6 = subparsers.add_parser("6")
+    subparser_6.add_argument("-i", "--input-representation",
+                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
 
@@ -39,6 +48,8 @@ def main():
         task1(arguments)
     elif arguments.task == 3:
         task3(arguments)
+    elif arguments.task == 6:
+        task6(arguments)
 
 
 if __name__ == "__main__":
