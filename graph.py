@@ -216,6 +216,103 @@ class Graph():
                     znaleziono = False
         return output
 
+    @staticmethod
+    def check_if_sequence_is_graphic(sequence: list[int]) -> bool:
+        """Check whether or not a provided sequence is a graphic sequence,
+        i.e. can be the sequence of degrees for some graph"""
+
+        if not sequence:
+            # a sequence of length 0 is always graphic
+            return True
+
+        if max(sequence) >= len(sequence):
+            # highest degree of a vertex is larger than the number of other
+            # vertices, meaning the graph can't be constructed
+            return False
+
+        if sum(sequence) % 2 == 1:
+            # sum of degrees must be even
+            return False
+
+        # create new list to avoid modifying input
+        remaining_edges = list(sequence)
+
+        # this loop involves "adding" edges until all vertices have the target
+        # number of incident edges. the actual edges are not tracked, only the
+        # remaining number of incident edges for each vertex
+        while True:
+            remaining_edges.sort(reverse=True)
+
+            if all(d == 0 for d in remaining_edges):
+                # all vertices have the correct number of edges
+                return True
+
+            if min(remaining_edges) < 0:
+                # one of the vertices has more incident edges than its
+                # target degree
+                return False
+
+            # create edges between the vertex with the largest number of remaining
+            # edges n and the n next vertices with the largest number of remaining
+            # edges
+            for index in range(1, remaining_edges[0] + 1):
+                remaining_edges[index] -= 1
+            remaining_edges[0] = 0
+
+    @classmethod
+    def from_graphic_sequence(cls,
+                              representation: Literal["adjlist", "adjmatrix", "incmatrix"],
+                              sequence: list[int]) -> Graph | None:
+        if not sequence:
+            # a sequence of length 0 corresponds to a graph with no vertices
+            return cls(representation, [])
+
+        if max(sequence) >= len(sequence):
+            # highest degree of a vertex is larger than the number of other
+            # vertices, meaning the graph can't be constructed
+            return None
+
+        if sum(sequence) % 2 == 1:
+            # sum of degrees must be even
+            return None
+
+        # tracks how many more incident edges must still be added to each vertex
+        remaining_edges = list(sequence)
+
+        # tracks vertex indices. when remaining_edges gets sorted, this list
+        # gets rearranged in the same way
+        vertex_indices = list(range(len(sequence)))
+
+        # adjacency list, to be built up during the upcoming loop
+        adjacency_list = [[] for _ in sequence]
+
+        # this loop involves adding edges until all vertices have the target
+        # number of incident edges.
+        while True:
+            # sort remaining_edges, but rearrange vertex_indices in the same way
+            remaining_edges, vertex_indices = (list(t) for t in zip(
+                *sorted(zip(remaining_edges, vertex_indices), reverse=True)))
+
+            if all(d == 0 for d in remaining_edges):
+                # all vertices have the correct number of edges
+                return Graph('adjlist', adjacency_list).convert_to(representation)
+
+            if min(remaining_edges) < 0:
+                # one of the vertices has more incident edges than its
+                # target degree
+                return None
+
+            # create edges between the vertex with the largest number of remaining
+            # edges n and the n next vertices with the largest number of remaining
+            # edges
+            for index in range(1, remaining_edges[0] + 1):
+                remaining_edges[index] -= 1
+                adjacency_list[vertex_indices[0]].append(
+                    vertex_indices[index] + 1)
+                adjacency_list[vertex_indices[index]].append(
+                    vertex_indices[0] + 1)
+            remaining_edges[0] = 0
+
     def find_components(self):
         """Function, which finds components of the graph and prints the number of the largest one.
         Its argument is a neighbour list."""
