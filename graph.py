@@ -65,6 +65,36 @@ class Graph():
 
         return Graph("adjmatrix", output)
 
+    @classmethod
+    def generate_random_regular(cls, n, k) -> Graph:
+        if n <= k:
+            raise ValueError('n <= k')
+
+        if k % 2 == 1 and n % 2 == 1:
+            raise ValueError('both k and n are odd')
+
+        output = [[] for j in range(n)]
+
+        edges = [[k, i+1] for i in range(0, n)]
+        random.shuffle(edges)
+
+        while edges[0][0] != 0:
+            v = edges[0][1]
+            amount = edges[0][0]
+
+            for i in range(amount):
+                edges[0][0] -= 1
+                edges[i+1][0] -= 1
+
+                v2 = edges[i+1][1]
+
+                output[v-1].append(v2)
+                output[v2-1].append(v)
+
+            edges.sort(reverse=True)
+
+        return Graph('adjlist', output)
+
     def convert_to(self, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> Graph:
         """convert graph to a given representation. returns the new Graph object"""
         conversion_functions = {

@@ -20,6 +20,12 @@ def task3(arguments):
     print(*max(input_graph.find_components(), key=len))
 
 
+def task5(arguments):
+    output_graph = Graph.generate_random_regular(
+        arguments.n, arguments.k).convert_to(arguments.output_representation)
+    print(output_graph.data_to_string(), end="")
+
+
 def task6(arguments):
     input_graph = Graph.parse(arguments.input_representation, sys.stdin.read())
     print('tak' if input_graph.find_hamiltonian_cycle() is not None else 'nie')
@@ -37,6 +43,12 @@ def main():
     subparser_3.add_argument("-i", "--input-representation",
                              choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
 
+    subparser_5 = subparsers.add_parser("5")
+    subparser_5.add_argument("n", type=int)
+    subparser_5.add_argument("k", type=int)
+    subparser_5.add_argument("-o", "--output-representation",
+                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+
     subparser_6 = subparsers.add_parser("6")
     subparser_6.add_argument("-i", "--input-representation",
                              choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
@@ -48,6 +60,8 @@ def main():
         task1(arguments)
     elif arguments.task == 3:
         task3(arguments)
+    elif arguments.task == 5:
+        task5(arguments)
     elif arguments.task == 6:
         task6(arguments)
 
