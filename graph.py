@@ -3,8 +3,8 @@ from typing import Literal
 import random
 
 
-class Graph():
-    """a graph with a given representation"""
+class Graph:
+    """A graph with a given representation"""
 
     def __init__(self,
                  representation: Literal["adjlist", "adjmatrix", "incmatrix"],
