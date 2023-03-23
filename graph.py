@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Literal
 import random
 import warnings
+import numpy as np
 
 
 class Graph:
@@ -400,28 +401,28 @@ class Graph:
 
         return None
 
-    def randomize_edges(self, n: int, max_rerolling_attempt: int = 99) -> Graph:
+    def randomize_edges(self, rand_it: int, max_rerolling_attempt: int = 99) -> Graph:
         """
         A function that returns graph with rerandomized edges, nodes degree is kept.
 
         Attributes
         -------------
-        n : int
+        rand_it : int
         number of randomization
         max_rerolling_attempt : int, optional
         how much attempts in finding swap pair before abandoning (default is 99)
         """
         output = self.convert_to('incmatrix').data
-        n = len(output)
-        if n*(n-1)/2 - 2 < len(output[0]):
+        node_n = len(output)
+        if node_n*(node_n-1)/2 - 2 < len(output[0]):
             warnings.warn(
                 'this graph have no free space for randomizing edge', RuntimeWarning)
             return Graph('incmatrix', output)
 
-        x1, x2, y1, y2 = None, None, None, None
-        c1, c2 = None, None
+        x_1, x_2, y_1, y_2 = None, None, None, None
+        c_1, c_2 = None, None
         rer_att = max_rerolling_attempt
-        for _ in range(n):
+        for _ in range(rand_it):
             while True:
                 if rer_att == 0:
                     warnings.warn('failed to find pair of edges to swap in a max_rerolling_attempt',
@@ -429,30 +430,88 @@ class Graph:
                     return Graph('incmatrix', output)
                 rer_att -= 1
                 try:
-                    c1 = random.randint(0, len(output[0])-1)
-                    x1, x2 = (i for i in range(len(output))
-                              if output[i][c1] == 1)
-                    c2 = random.choices([i for i in range(len(output[0])) if (
-                        output[x1][i] != 1 and output[x2][i] != 1)])[0]
-                    y1, y2 = (i for i in range(len(output))
-                              if output[i][c2] == 1)
+                    c_1 = random.randint(0, len(output[0])-1)
+                    x_1, x_2 = (i for i in range(len(output))
+                              if output[i][c_1] == 1)
+                    c_2 = random.choices([i for i in range(len(output[0])) if (
+                        output[x_1][i] != 1 and output[x_2][i] != 1)])[0]
+                    y_1, y_2 = (i for i in range(len(output))
+                              if output[i][c_2] == 1)
                     if random.getrandbits(1):
-                        y1, y2 = y2, y1
+                        y_1, y_2 = y_2, y_1
                     tmp = [i for i in range(len(output[0]))
                            if
-                            (output[x1][i] == 1 and output[y1][i] == 1) or
-                            (output[x2][i] == 1 and output[y2][i] == 1)]
+                            (output[x_1][i] == 1 and output[y_1][i] == 1) or
+                            (output[x_2][i] == 1 and output[y_2][i] == 1)]
                     if len(tmp) == 0:
                         break
                 except IndexError:
                     pass
 
-            output[x2][c1] = 0
-            output[y1][c2] = 0
-            output[y1][c1] = 1
-            output[x2][c2] = 1
+            output[x_2][c_1] = 0
+            output[y_1][c_2] = 0
+            output[y_1][c_1] = 1
+            output[x_2][c_2] = 1
 
         return Graph('incmatrix', output)
+
+    @staticmethod
+    def euler_graph_generator(node: int, edge: int) -> Graph:
+        """Generate euler graph.
+
+        Attributes
+        -------------
+        node : int
+        number of nodes
+        edge : int
+        number of edges"""
+        edge -= node
+        if edge < 0 or edge+node > node*(node-1)/2:
+            raise ArithmeticError("")
+        output = np.ones(node).astype(int)
+        for _ in range(edge):
+            random_id = random.randrange(0, node)
+            while (2 * output[random_id] + 1 > output.sum() or 2*output[random_id]+2 > node):
+                random_id = random.randrange(0, node)
+            output[random_id] += 1
+
+        output *= 2
+
+        output = list(output)
+        result = Graph.from_graphic_sequence('adjlist', output)
+        if edge+node < node*(node-1)/2:
+            result = result.randomize_edges(random.randrange(4))
+
+        return result
+
+
+    def euler_cycle_finder(self: Graph) -> list:
+        """Find euler cycle
+        Returns list of nodes number counted from 1"""
+        data = self.convert_to('adjlist').data
+        node_id = 0
+        while len(data[node_id]) == 0:
+            node_id += 1
+        id_of_next = -1
+        output = list()
+        while len(data[node_id]) != 0:
+            next_node_id = data[node_id][id_of_next]-1
+            ndata = list([j for j in i
+                        if (id not in [node_id, next_node_id] or j-1 not in [node_id, next_node_id])
+                        ]for id, i in enumerate(data))
+            components = [i for i in Graph('adjlist', ndata).find_components() if len(
+                i) > 1 or i[0] == next_node_id+1]
+
+            if len(components) == 1:
+                data = ndata
+                output.append(node_id+1)
+                node_id = next_node_id
+                id_of_next = -1
+            else:
+                id_of_next -= 1
+
+        output.append(node_id+1)
+        return output
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Graph):
