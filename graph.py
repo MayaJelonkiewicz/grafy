@@ -400,10 +400,10 @@ class Graph:
 
         return None
 
-    def randomize_edges(self, n : int, max_rerolling_attempt : int = 99) -> Graph:
+    def randomize_edges(self, n: int, max_rerolling_attempt: int = 99) -> Graph:
         """
         A function that returns graph with rerandomized edges, nodes degree is kept.
-        
+
         Attributes
         -------------
         n : int
@@ -413,36 +413,46 @@ class Graph:
         """
         output = self.convert_to('incmatrix').data
         n = len(output)
-        if(n*(n-1)/2 - 2 < len(output[0])): 
-            warnings.warn('this graph have no free space for randomizing edge', RuntimeWarning)
-            return Graph('incmatrix',output)
-        
-        x1,x2,y1,y2 = None,None,None,None
-        c1, c2 = None,None
+        if n*(n-1)/2 - 2 < len(output[0]):
+            warnings.warn(
+                'this graph have no free space for randomizing edge', RuntimeWarning)
+            return Graph('incmatrix', output)
+
+        x1, x2, y1, y2 = None, None, None, None
+        c1, c2 = None, None
         rer_att = max_rerolling_attempt
-        for iter in range(n):
+        for _ in range(n):
             while True:
-                if(rer_att==0): 
-                    warnings.warn('failed to find pair of edges to randomize in a max_rerolling_attempt', RuntimeWarning)
-                    return Graph('incmatrix',output)
+                if rer_att == 0:
+                    warnings.warn('failed to find pair of edges to swap in a max_rerolling_attempt',
+                                  RuntimeWarning)
+                    return Graph('incmatrix', output)
                 rer_att -= 1
                 try:
-                    c1 = random.randint(0,len(output[0])-1)
-                    x1,x2 = (i for i in range(len(output)) if output[i][c1] == 1)
-                    c2 = random.choices([i for i in range(len(output[0])) if (output[x1][i] != 1 and output[x2][i]!=1)])[0]
-                    y1,y2 = (i for i in range(len(output)) if output[i][c2] == 1)
-                    if(random.getrandbits(1)): y1,y2 = y2,y1
-                    tmp = [i for i in range(len(output[0])) if (output[x1][i]==1 and output[y1][i]==1) or
-                                                            (output[x2][i]==1 and output[y2][i]==1)]
-                    if(len(tmp)==0): break
-                except: pass
+                    c1 = random.randint(0, len(output[0])-1)
+                    x1, x2 = (i for i in range(len(output))
+                              if output[i][c1] == 1)
+                    c2 = random.choices([i for i in range(len(output[0])) if (
+                        output[x1][i] != 1 and output[x2][i] != 1)])[0]
+                    y1, y2 = (i for i in range(len(output))
+                              if output[i][c2] == 1)
+                    if random.getrandbits(1):
+                        y1, y2 = y2, y1
+                    tmp = [i for i in range(len(output[0]))
+                           if
+                            (output[x1][i] == 1 and output[y1][i] == 1) or
+                            (output[x2][i] == 1 and output[y2][i] == 1)]
+                    if len(tmp) == 0:
+                        break
+                except IndexError:
+                    pass
 
             output[x2][c1] = 0
             output[y1][c2] = 0
             output[y1][c1] = 1
             output[x2][c2] = 1
 
-        return Graph('incmatrix',output)
+        return Graph('incmatrix', output)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Graph):
