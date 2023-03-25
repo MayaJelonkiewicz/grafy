@@ -24,6 +24,25 @@ class Digraph:
         """Parse raw string data into a Digraph object"""
         return cls([[int(value) for value in line.split()] for line in string.splitlines()])
 
+    @staticmethod
+    def generate_with_gnp_model(n: int, p: float) -> Digraph:
+        """Generate digraph using probability"""
+        output = [[] for _ in range(n)]
+
+        for i in range(n):
+            for j in range(1,n+1):
+                
+                if rand.random() <= p and j-1 != i:
+                    output[i].append(j)
+
+        return Digraph(output)
+
+
+    def data_to_string(self) -> str:
+        string = ""
+        for row in self.adjacency_list:
+            string += " ".join(map(lambda v: f"{v}", row)) + "\n"
+        return string
 
 if __name__ == "__main__":
     pass
