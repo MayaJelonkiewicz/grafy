@@ -1,5 +1,8 @@
 from __future__ import annotations
-
+from graph import Graph
+from random import randrange
+import networkx as nx
+import matplotlib.pyplot as plt
 
 class WeightedGraph:
     """A weighted graph stored as an adjacency list"""
@@ -28,6 +31,70 @@ class WeightedGraph:
                 adjacencies.append(cls.Adjacency(vertex, weight))
             adjacency_list.append(adjacencies)
         return cls(adjacency_list)
+
+    @staticmethod
+    def generate_weighted_connected(n: int, l: int) -> WeightedGraph:
+        """Generate random weighted, connected graph using gnl algorithm.
+           Weights are random numbers from 1 to 10 included."""
+
+        output = [[] for _ in range(n)]
+
+        if l >= n-1:
+            graph = Graph.generate_with_gnl_model(n,l)
+
+            comp_list = graph.find_components()
+            comp_list.sort(key=len)
+
+            while(len(comp_list) > 1):
+                comp_list.sort(key=len)
+                toAdd = comp_list[0]
+                mainComp = comp_list[-1]
+                prev = comp_list[0][0]
+
+                for i in range(len(toAdd)):
+                    v1 = toAdd[i] - 1
+                    v2 = mainComp[randrange(0, len(mainComp))] - 1
+
+                    edges = [i for i in range(0,n) if graph.data[v2][i] == 1]
+
+                    toDel = graph.data[v1].index(1) if 1 in graph.data[v1] else None
+
+                    choice = edges[randrange(0, len(edges))]
+
+                    graph.data[v1][v2] = graph.data[v2][v1] = 1
+                    graph.data[v2][choice] = graph.data[choice][v2] = 0
+
+                    if toDel != None:
+                        graph.data[v2][toDel] = graph.data[toDel][v2] = 0
+
+                    prev = v2
+
+                    comp_list = graph.find_components()
+
+                    mainComp.remove(prev+1)           
+                    
+                    if 1 not in graph.data[choice]:
+                        mainComp.remove(choice+1)
+                   
+                    if mainComp == []:
+                        mainComp = comp_list[-1]
+
+            adjlist = graph.convert_to("adjlist").data
+            
+            for i in range(n):
+                for j in adjlist[i]:
+                    weight = randrange(1, 10 + 1)
+
+                    output[i].append(WeightedGraph.Adjacency(j, weight))
+                    output[j-1].append(WeightedGraph.Adjacency(i + 1, weight))
+
+                    adjlist[j-1].remove(i + 1)
+        else:
+            raise RuntimeError(
+                f"{l = } is too small to make connected graph of {n = } vertexes."
+            )
+
+        return WeightedGraph(output)
 
     def dijkstra(self, s: int) -> tuple[list, list]:
         """Dijkstra algorithm - finds shortest paths from one vertex to all others in the graph.

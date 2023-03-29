@@ -3,7 +3,8 @@ import sys
 
 from weighted_graph import WeightedGraph
 
-
+def task1(arguments):
+    print(repr(WeightedGraph.generate_weighted_connected(arguments.n, arguments.l).adjacency_list))
 def task2(arguments):
     graph = WeightedGraph.parse(sys.stdin.read())
     distances, predecessors = graph.dijkstra(arguments.v)
@@ -42,6 +43,10 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="task", required=True)
 
+    subparser_1 = subparsers.add_parser("1")
+    subparser_1.add_argument("n", type=int)
+    subparser_1.add_argument("l", type=int)
+
     subparser_2 = subparsers.add_parser("2")
     subparser_2.add_argument("v", type=int)
 
@@ -52,7 +57,9 @@ def main():
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
 
-    if arguments.task == 2:
+    if arguments.task == 1:
+        task1(arguments)
+    elif arguments.task == 2:
         task2(arguments)
     elif arguments.task == 3:
         task3(arguments)
