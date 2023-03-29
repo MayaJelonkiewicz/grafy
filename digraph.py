@@ -1,3 +1,7 @@
+from __future__ import annotations
+import random
+
+
 class Digraph:
     """A directed graph, stored as an adjacency list"""
 
@@ -30,19 +34,19 @@ class Digraph:
         output = [[] for _ in range(n)]
 
         for i in range(n):
-            for j in range(1,n+1):
-                
-                if rand.random() <= p and j-1 != i:
+            for j in range(1, n+1):
+
+                if random.random() <= p and j-1 != i:
                     output[i].append(j)
 
         return Digraph(output)
-
 
     def data_to_string(self) -> str:
         string = ""
         for row in self.adjacency_list:
             string += " ".join(map(lambda v: f"{v}", row)) + "\n"
         return string
+
 
 if __name__ == "__main__":
     pass
