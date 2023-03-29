@@ -1,5 +1,6 @@
 from __future__ import annotations
 import random
+from typing import Self
 
 
 class Digraph:
@@ -28,8 +29,8 @@ class Digraph:
         """Parse raw string data into a Digraph object"""
         return cls([[int(value) for value in line.split()] for line in string.splitlines()])
 
-    @staticmethod
-    def generate_with_gnp_model(n: int, p: float) -> Digraph:
+    @classmethod
+    def generate_with_gnp_model(cls, n: int, p: float) -> Self:
         """Generate digraph using probability"""
         output = [[] for _ in range(n)]
 
@@ -39,7 +40,7 @@ class Digraph:
                 if random.random() <= p and j-1 != i:
                     output[i].append(j)
 
-        return Digraph(output)
+        return cls(output)
 
     def data_to_string(self) -> str:
         string = ""

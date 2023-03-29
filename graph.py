@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Literal
+from typing import Literal, Self
 import random
 import warnings
 import numpy as np
@@ -14,15 +14,15 @@ class Graph:
         self.representation = representation
         self.data = data
 
-    @staticmethod
-    def parse(representation: Literal["adjlist", "adjmatrix", "incmatrix"], string: str) -> Graph:
+    @classmethod
+    def parse(cls, representation: Literal["adjlist", "adjmatrix", "incmatrix"], string: str) -> Self:
         "parse raw string data into a Graph object"
-        return Graph(representation,
+        return cls(representation,
                      [[int(value) for value in line.split()]
                       for line in string.splitlines()])
 
-    @staticmethod
-    def generate_with_gnl_model(n: int, l: int) -> Graph:
+    @classmethod
+    def generate_with_gnl_model(cls, n: int, l: int) -> Self:
         """Generate graph using number of edges"""
         output = [[0 for _ in range(n)] for _ in range(n)]
 
@@ -44,10 +44,10 @@ class Graph:
             raise RuntimeError(
                 f"{l = } is too large for graph where {n = }")
 
-        return Graph("adjmatrix", output)
+        return cls("adjmatrix", output)
 
-    @staticmethod
-    def generate_with_gnp_model(n: int, p: float) -> Graph:
+    @classmethod
+    def generate_with_gnp_model(cls, n: int, p: float) -> Self:
         """Generate graph using probability"""
         output = [[0 for _ in range(n)] for _ in range(n)]
 
@@ -65,10 +65,10 @@ class Graph:
                     else:
                         break
 
-        return Graph("adjmatrix", output)
+        return cls("adjmatrix", output)
 
     @classmethod
-    def generate_random_regular(cls, n, k) -> Graph:
+    def generate_random_regular(cls, n, k) -> Self:
         if n <= k:
             raise ValueError('n <= k')
 
@@ -95,9 +95,9 @@ class Graph:
 
             edges.sort(reverse=True)
 
-        return Graph('adjlist', output)
+        return cls('adjlist', output)
 
-    def convert_to(self, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> Graph:
+    def convert_to(self, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> Self:
         """convert graph to a given representation. returns the new Graph object"""
         conversion_functions = {
             ("adjlist", "adjmatrix"):
@@ -294,7 +294,7 @@ class Graph:
     @classmethod
     def from_graphic_sequence(cls,
                               representation: Literal["adjlist", "adjmatrix", "incmatrix"],
-                              sequence: list[int]) -> Graph | None:
+                              sequence: list[int]) -> Self | None:
         if not sequence:
             # a sequence of length 0 corresponds to a graph with no vertices
             return cls(representation, [])
@@ -327,7 +327,7 @@ class Graph:
 
             if all(d == 0 for d in remaining_edges):
                 # all vertices have the correct number of edges
-                return Graph('adjlist', adjacency_list).convert_to(representation)
+                return cls('adjlist', adjacency_list).convert_to(representation)
 
             if min(remaining_edges) < 0:
                 # one of the vertices has more incident edges than its
@@ -401,7 +401,7 @@ class Graph:
 
         return None
 
-    def randomize_edges(self, rand_it: int, max_rerolling_attempt: int = 99) -> Graph:
+    def randomize_edges(self, rand_it: int, max_rerolling_attempt: int = 99) -> Self:
         """
         A function that returns graph with rerandomized edges, nodes degree is kept.
 
@@ -455,8 +455,8 @@ class Graph:
 
         return Graph('incmatrix', output)
 
-    @staticmethod
-    def euler_graph_generator(node: int, edge: int) -> Graph:
+    @classmethod
+    def euler_graph_generator(cls, node: int, edge: int) -> Self:
         """Generate euler graph.
 
         Attributes
@@ -478,14 +478,14 @@ class Graph:
         output *= 2
 
         output = list(output)
-        result = Graph.from_graphic_sequence('adjlist', output)
+        result = cls.from_graphic_sequence('adjlist', output)
         if edge+node < node*(node-1)/2:
             result = result.randomize_edges(random.randrange(4))
 
         return result
 
 
-    def euler_cycle_finder(self: Graph) -> list:
+    def euler_cycle_finder(self: Self) -> list:
         """Find euler cycle
         Returns list of nodes number counted from 1"""
         data = self.convert_to('adjlist').data

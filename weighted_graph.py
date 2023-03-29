@@ -1,5 +1,6 @@
 from __future__ import annotations
 from random import randrange
+from typing import Self
 from graph import Graph
 
 
@@ -20,7 +21,7 @@ class WeightedGraph:
         self.adjacency_list = adjacency_list
 
     @classmethod
-    def parse(cls, string: str) -> WeightedGraph:
+    def parse(cls, string: str) -> Self:
         """Parse raw string data into a WeightedGraph object"""
         adjacency_list = []
         for line in string.splitlines():
@@ -31,8 +32,8 @@ class WeightedGraph:
             adjacency_list.append(adjacencies)
         return cls(adjacency_list)
 
-    @staticmethod
-    def generate_weighted_connected(n: int, l: int) -> WeightedGraph:
+    @classmethod
+    def generate_weighted_connected(cls, n: int, l: int) -> Self:
         """Generate random weighted, connected graph using gnl algorithm.
            Weights are random numbers from 1 to 10 included."""
 
@@ -85,8 +86,8 @@ class WeightedGraph:
                 for j in adjlist[i]:
                     weight = randrange(1, 10 + 1)
 
-                    output[i].append(WeightedGraph.Adjacency(j, weight))
-                    output[j-1].append(WeightedGraph.Adjacency(i + 1, weight))
+                    output[i].append(cls.Adjacency(j, weight))
+                    output[j-1].append(cls.Adjacency(i + 1, weight))
 
                     adjlist[j-1].remove(i + 1)
         else:
@@ -94,14 +95,14 @@ class WeightedGraph:
                 f"{l = } is too small to make connected graph of {n = } vertexes."
             )
 
-        return WeightedGraph(output)
+        return cls(output)
 
     def dijkstra(self, s: int) -> tuple[list, list]:
         """Dijkstra algorithm - finds shortest paths from one vertex to all others in the graph.
         Returns a tuple of two lists, where the first contains the distances to each vertex,
         and the second contains each vertex's predecessor in all shortest paths."""
 
-        def init(g: WeightedGraph, s: int) -> tuple[list, list]:
+        def init(g: Self, s: int) -> tuple[list, list]:
             """A function where tables containing distances and predecessors are initialized"""
             d = []
             p = []
@@ -111,7 +112,7 @@ class WeightedGraph:
             d[s] = 0
             return d, p
 
-        def relax(w: int, u: int, d: list, p: list, g: WeightedGraph) -> tuple[list, list]:
+        def relax(w: int, u: int, d: list, p: list, g: Self) -> tuple[list, list]:
             """Relaxing edges in Dijkstra algorithm"""
             id_u = -1
             for i in range(len(self.adjacency_list[w])):
