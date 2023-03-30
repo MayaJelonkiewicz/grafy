@@ -3,6 +3,8 @@ from random import randrange
 from typing import Self
 from graph import Graph
 
+import numpy as np
+
 
 class WeightedGraph:
     """A weighted graph stored as an adjacency list"""
@@ -204,7 +206,44 @@ class WeightedGraph:
                 min_max = tab_max[k]
                 id = k
         return id
-
+    
+    def min_spanning_tree(self) -> WeightedGraph:
+        """Finds the minimum spanning tree of a graph using Kruskal's algorithm"""
+        def find_set(x: int, parent: list) -> int:
+            """A function that finds the set of a given vertex"""
+            if x != parent[x]:
+                parent[x] = find_set(parent[x], parent)
+            return parent[x]
+        
+        def union(x: int, y: int, parent: list, rank: list):
+            """A function that unites two sets"""
+            x_root = find_set(x, parent)
+            y_root = find_set(y, parent)
+            if rank[x_root] < rank[y_root]:
+                parent[x_root] = y_root
+            elif rank[x_root] > rank[y_root]:
+                parent[y_root] = x_root
+            else:
+                parent[y_root] = x_root
+                rank[x_root] += 1
+        
+        parent = list(range(len(self.adjacency_list)))
+        rank = [0 for i in range(len(self.adjacency_list)) ]
+        
+        edges = [
+            (self.adjacency_list[i][j].weight, i, self.adjacency_list[i][j].vertex)
+            for i in range(len(self.adjacency_list))
+            for j in range(len(self.adjacency_list[i]))
+            ]
+        edges.sort()
+        result = [[] for i in range(len(self.adjacency_list))]
+        for edge in edges:
+            weight, x_v, y_v = edge
+            if find_set(x_v, parent) != find_set(y_v, parent):
+                result[x_v].append(WeightedGraph.Adjacency(y_v, weight))
+                result[y_v].append(WeightedGraph.Adjacency(x_v, weight))
+                union(x_v, y_v, parent, rank)
+        return WeightedGraph(result)
 
 if __name__ == "__main__":
     pass
