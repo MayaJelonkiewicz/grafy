@@ -470,9 +470,10 @@ class Graph:
             raise ArithmeticError("")
         output = np.ones(node).astype(int)
         for _ in range(edge):
-            random_id = random.randrange(0, node)
-            while (2 * output[random_id] + 1 > output.sum() or 2*output[random_id]+2 > node):
-                random_id = random.randrange(0, node)
+            random_id = random.choice([
+                i for i in range(node)
+                    if (2 * output[i] + 1 <= output.sum() and 2*output[i]+2 <= node)
+                ])
             output[random_id] += 1
 
         output *= 2
