@@ -21,9 +21,11 @@ class Graph:
             case "adjlist":
                 adjacency_list = data
             case "adjmatrix":
-                adjacency_list = Graph._adjacency_matrix_to_adjacency_list(data)
+                adjacency_list = Graph._adjacency_matrix_to_adjacency_list(
+                    data)
             case "incmatrix":
-                adjacency_list = Graph._incidence_matrix_to_adjacency_list(data)
+                adjacency_list = Graph._incidence_matrix_to_adjacency_list(
+                    data)
 
         return cls(adjacency_list)
 
@@ -47,8 +49,16 @@ class Graph:
     @classmethod
     def generate_with_gnl_model(cls, n: int, l: int) -> Self:
         """Generate graph using number of edges"""
-        output = [[0 for _ in range(n)] for _ in range(n)]
+        if n < 0:
+            raise ValueError("n < 0")
 
+        if l < 0:
+            raise ValueError("l < 0")
+
+        if l > n*(n-1)//2:
+            raise RuntimeError(f"{l = } is too large for graph where {n = }")
+
+        output = [[0 for _ in range(n)] for _ in range(n)]
         if 0 < l < n*(n-1)/2:
             while l > 0:
                 row = random.randrange(0, n)
@@ -59,19 +69,22 @@ class Graph:
                         output[row][col] = 1
                         output[col][row] = 1
                         l -= 1
-        elif l == n*(n-1)/2:
+        elif l == n*(n-1)//2:
             for i in range(n):
                 for j in range(i+1, n):
                     output[i][j] = output[j][i] = 1
-        else:
-            raise RuntimeError(
-                f"{l = } is too large for graph where {n = }")
 
         return cls(cls._adjacency_matrix_to_adjacency_list(output))
 
     @classmethod
     def generate_with_gnp_model(cls, n: int, p: float) -> Self:
         """Generate graph using probability"""
+        if p < 0 or p > 1:
+            raise ValueError("p < 0 or p > 1")
+
+        if n < 0:
+            raise ValueError("n < 0")
+
         output = [[0 for _ in range(n)] for _ in range(n)]
 
         edge = 0
@@ -93,10 +106,10 @@ class Graph:
     @classmethod
     def generate_random_regular(cls, n, k) -> Self:
         if n <= k:
-            raise ValueError('n <= k')
+            raise ValueError("n <= k")
 
         if k % 2 == 1 and n % 2 == 1:
-            raise ValueError('both k and n are odd')
+            raise ValueError("both k and n are odd")
 
         output = [[] for j in range(n)]
 
@@ -400,8 +413,8 @@ class Graph:
         for _ in range(edge):
             random_id = random.choice([
                 i for i in range(node)
-                    if (2 * output[i] + 1 <= output.sum() and 2*output[i]+2 <= node)
-                ])
+                if (2 * output[i] + 1 <= output.sum() and 2*output[i]+2 <= node)
+            ])
             output[random_id] += 1
 
         output *= 2
