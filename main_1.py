@@ -8,14 +8,13 @@ from graph import Graph
 
 
 def task1(arguments):
-    input_graph = Graph.parse(arguments.input_representation, sys.stdin.read())
-    output_graph = input_graph.convert_to(arguments.output_representation)
-    print(output_graph.data_to_string(), end="")
+    graph = Graph.parse(arguments.input_representation, sys.stdin.read())
+    print(graph.dump(arguments.output_representation), end="")
 
 
 def task2(arguments):
     adjacencies = Graph.parse(
-        arguments.input_representation, sys.stdin.read()).convert_to("adjlist").data
+        arguments.input_representation, sys.stdin.read()).adjacency_list
 
     graph = nx.Graph()
     for i in range(1, len(adjacencies) + 1):
@@ -32,15 +31,11 @@ def task2(arguments):
 
 def task3(arguments):
     if arguments.model == "gnl":
-        print(Graph.generate_with_gnl_model(arguments.n, arguments.l)
-              .convert_to(arguments.output_representation)
-              .data_to_string(),
-              end="")
+        print(Graph.generate_with_gnl_model(arguments.n, arguments.l).dump(
+            arguments.output_representation), end="")
     elif arguments.model == "gnp":
-        print(Graph.generate_with_gnp_model(arguments.n, arguments.p)
-              .convert_to(arguments.output_representation)
-              .data_to_string(),
-              end="")
+        print(Graph.generate_with_gnp_model(arguments.n, arguments.p).dump(
+            arguments.output_representation), end="")
 
 
 def main():

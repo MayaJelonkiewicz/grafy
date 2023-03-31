@@ -57,18 +57,18 @@ class WeightedGraph:
                     v1 = toAdd[i] - 1
                     v2 = mainComp[randrange(0, len(mainComp))] - 1
 
-                    edges = [i for i in range(0, n) if graph.data[v2][i] == 1]
+                    edges = [i for i in range(0, n) if graph.adjacency_list[v2][i] == 1]
 
-                    toDel = graph.data[v1].index(
-                        1) if 1 in graph.data[v1] else None
+                    toDel = graph.adjacency_list[v1].index(
+                        1) if 1 in graph.adjacency_list[v1] else None
 
                     choice = edges[randrange(0, len(edges))]
 
-                    graph.data[v1][v2] = graph.data[v2][v1] = 1
-                    graph.data[v2][choice] = graph.data[choice][v2] = 0
+                    graph.adjacency_list[v1][v2] = graph.adjacency_list[v2][v1] = 1
+                    graph.adjacency_list[v2][choice] = graph.adjacency_list[choice][v2] = 0
 
                     if toDel != None:
-                        graph.data[v2][toDel] = graph.data[toDel][v2] = 0
+                        graph.adjacency_list[v2][toDel] = graph.adjacency_list[toDel][v2] = 0
 
                     prev = v2
 
@@ -76,13 +76,13 @@ class WeightedGraph:
 
                     mainComp.remove(prev+1)
 
-                    if 1 not in graph.data[choice]:
+                    if 1 not in graph.adjacency_list[choice]:
                         mainComp.remove(choice+1)
 
                     if mainComp == []:
                         mainComp = comp_list[-1]
 
-            adjlist = graph.convert_to("adjlist").data
+            adjlist = graph.adjacency_list
 
             for i in range(n):
                 for j in adjlist[i]:

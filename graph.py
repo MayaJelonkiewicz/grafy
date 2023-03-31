@@ -8,18 +8,41 @@ import numpy as np
 class Graph:
     """A graph with a given representation"""
 
-    def __init__(self,
-                 representation: Literal["adjlist", "adjmatrix", "incmatrix"],
-                 data: list[list[int]]):
-        self.representation = representation
-        self.data = data
+    def __init__(self, adjacency_list: list[list[int]]):
+        self.adjacency_list = adjacency_list
 
     @classmethod
     def parse(cls, representation: Literal["adjlist", "adjmatrix", "incmatrix"], string: str) -> Self:
         "parse raw string data into a Graph object"
-        return cls(representation,
-                     [[int(value) for value in line.split()]
-                      for line in string.splitlines()])
+
+        data = [[int(value) for value in line.split()]
+                for line in string.splitlines()]
+        match representation:
+            case "adjlist":
+                adjacency_list = data
+            case "adjmatrix":
+                adjacency_list = Graph._adjacency_matrix_to_adjacency_list(data)
+            case "incmatrix":
+                adjacency_list = Graph._incidence_matrix_to_adjacency_list(data)
+
+        return cls(adjacency_list)
+
+    def dump(self, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> str:
+        data = []
+        match representation:
+            case "adjlist":
+                data = self.adjacency_list
+            case "adjmatrix":
+                data = Graph._adjacency_list_to_adjacency_matrix(
+                    self.adjacency_list)
+            case "incmatrix":
+                data = Graph._adjacency_list_to_incidence_matrix(
+                    self.adjacency_list)
+
+        string = ""
+        for row in data:
+            string += " ".join(map(lambda v: f"{v}", row)) + "\n"
+        return string
 
     @classmethod
     def generate_with_gnl_model(cls, n: int, l: int) -> Self:
@@ -44,7 +67,7 @@ class Graph:
             raise RuntimeError(
                 f"{l = } is too large for graph where {n = }")
 
-        return cls("adjmatrix", output)
+        return cls(cls._adjacency_list_to_adjacency_matrix(output))
 
     @classmethod
     def generate_with_gnp_model(cls, n: int, p: float) -> Self:
@@ -65,7 +88,7 @@ class Graph:
                     else:
                         break
 
-        return cls("adjmatrix", output)
+        return cls(cls._adjacency_matrix_to_adjacency_list(output))
 
     @classmethod
     def generate_random_regular(cls, n, k) -> Self:
@@ -95,43 +118,7 @@ class Graph:
 
             edges.sort(reverse=True)
 
-        return cls('adjlist', output)
-
-    def convert_to(self, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> Self:
-        """convert graph to a given representation. returns the new Graph object"""
-        conversion_functions = {
-            ("adjlist", "adjmatrix"):
-                Graph._adjacency_list_to_adjacency_matrix,
-            ("adjlist", "incmatrix"):
-                Graph._adjacency_list_to_incidence_matrix,
-            ("adjmatrix", "adjlist"):
-                Graph._adjacency_matrix_to_adjacency_list,
-            ("adjmatrix", "incmatrix"):
-                Graph._adjacency_matrix_to_incidence_matrix,
-            ("incmatrix", "adjlist"):
-                Graph._incidence_matrix_to_adjacency_list,
-            ("incmatrix", "adjmatrix"):
-                Graph._incidence_matrix_to_adjacency_matrix,
-        }
-
-        if self.representation == representation:
-            # fmt: off
-            conversion_function = lambda d: d # no conversion needed
-            # fmt: on
-        elif (self.representation, representation) in conversion_functions:
-            conversion_function = conversion_functions[(
-                self.representation, representation)]  # type: ignore
-        else:
-            raise RuntimeError(
-                f"conversion not implemented: {self.representation} to {representation}")
-
-        return Graph(representation, conversion_function(self.data))
-
-    def data_to_string(self) -> str:
-        string = ""
-        for row in self.data:
-            string += " ".join(map(lambda v: f"{v}", row)) + "\n"
-        return string
+        return cls(output)
 
     @staticmethod
     def _adjacency_matrix_to_adjacency_list(input: list[list[int]]) -> list[list[int]]:
@@ -195,60 +182,6 @@ class Graph:
         return output
 
     @staticmethod
-    def _incidence_matrix_to_adjacency_matrix(input: list[list[int]]) -> list[list[int]]:
-        """transform 'incidence matrix' to 'adjacency matrix'"""
-        n = len(input)
-        k = len(input[0])
-        output = []
-        for l in range(n):
-            output.append([])
-            for _ in range(n):
-                output[l].append(0)
-        for i in range(k):
-            u = 0
-            v = 0
-            for j in range(n):
-                if (input[j][i] == 1 and u != 0):
-                    v = j+1
-                if (input[j][i] == 1 and u == 0):
-                    u = j+1
-
-            if (u != 0 and v != 0):
-                output[u-1][v-1] = 1
-                output[v-1][u-1] = 1
-        return output
-
-    @staticmethod
-    def _adjacency_matrix_to_incidence_matrix(input: list[list[int]]) -> list[list[int]]:
-        """transform 'adjacency matrix' to 'incidence matrix'"""
-        n = len(input)
-        idx = 0
-        for i in range(n):
-            for j in range(n):
-                if input[i][j] == 1:
-                    idx = idx+1
-
-        output = []
-        for k in range(n):
-            output.append([])
-            for _ in range(idx//2):
-                output[k].append(0)
-        nr_krawedzi = 0
-        znaleziono = False
-        for a in range(n):
-            for b in range(n):
-                if input[a][b] == 1:
-                    for c in range(idx//2):
-                        if output[a][c] == 1 and output[b][c] == 1:
-                            znaleziono = True
-                    if not znaleziono:
-                        output[a][nr_krawedzi] = 1
-                        output[b][nr_krawedzi] = 1
-                        nr_krawedzi = nr_krawedzi+1
-                    znaleziono = False
-        return output
-
-    @staticmethod
     def check_if_sequence_is_graphic(sequence: list[int]) -> bool:
         """Check whether or not a provided sequence is a graphic sequence,
         i.e. can be the sequence of degrees for some graph"""
@@ -292,12 +225,10 @@ class Graph:
             remaining_edges[0] = 0
 
     @classmethod
-    def from_graphic_sequence(cls,
-                              representation: Literal["adjlist", "adjmatrix", "incmatrix"],
-                              sequence: list[int]) -> Self | None:
+    def from_graphic_sequence(cls, sequence: list[int]) -> Self | None:
         if not sequence:
             # a sequence of length 0 corresponds to a graph with no vertices
-            return cls(representation, [])
+            return cls([])
 
         if max(sequence) >= len(sequence):
             # highest degree of a vertex is larger than the number of other
@@ -327,7 +258,7 @@ class Graph:
 
             if all(d == 0 for d in remaining_edges):
                 # all vertices have the correct number of edges
-                return cls('adjlist', adjacency_list).convert_to(representation)
+                return cls(adjacency_list)
 
             if min(remaining_edges) < 0:
                 # one of the vertices has more incident edges than its
@@ -355,17 +286,15 @@ class Graph:
                     comp[g[v][i]-1] = nr
                     components_r(nr, g[v][i]-1, g, comp)
 
-        adjacency_list = self.convert_to('adjlist').data
-
         nr = 0
         comp = []
-        for i in range(len(adjacency_list)):
+        for i in range(len(self.adjacency_list)):
             comp.append(-1)
-        for i in range(len(adjacency_list)):
+        for i in range(len(self.adjacency_list)):
             if comp[i] == -1:
                 nr = nr+1
                 comp[i] = nr
-                components_r(nr, i, adjacency_list, comp)
+                components_r(nr, i, self.adjacency_list, comp)
 
         components = [[] for _ in range(nr)]
         for vertex_index, component_index in enumerate(comp):
@@ -373,8 +302,7 @@ class Graph:
         return components
 
     def find_hamiltonian_cycle(self):
-        adjacency_list = self.convert_to('adjlist').data
-        return self._dfs_hamilton_recursive(adjacency_list, 1, [0 for _ in adjacency_list], [])
+        return self._dfs_hamilton_recursive(self.adjacency_list, 1, [0 for _ in self.adjacency_list], [])
 
     @classmethod
     def _dfs_hamilton_recursive(cls, adjacency_list: list[list[int]], vertex: int,
@@ -412,12 +340,12 @@ class Graph:
         max_rerolling_attempt : int, optional
         how much attempts in finding swap pair before abandoning (default is 99)
         """
-        output = self.convert_to('incmatrix').data
+        output = Graph._adjacency_list_to_incidence_matrix(self.adjacency_list)
         node_n = len(output)
         if node_n*(node_n-1)/2 - 2 < len(output[0]):
             warnings.warn(
                 'this graph have no free space for randomizing edge', RuntimeWarning)
-            return Graph('incmatrix', output)
+            return Graph(Graph._incidence_matrix_to_adjacency_list(output))
 
         x_1, x_2, y_1, y_2 = None, None, None, None
         c_1, c_2 = None, None
@@ -427,22 +355,22 @@ class Graph:
                 if rer_att == 0:
                     warnings.warn('failed to find pair of edges to swap in a max_rerolling_attempt',
                                   RuntimeWarning)
-                    return Graph('incmatrix', output)
+                    return Graph(Graph._incidence_matrix_to_adjacency_list(output))
                 rer_att -= 1
                 try:
                     c_1 = random.randint(0, len(output[0])-1)
                     x_1, x_2 = (i for i in range(len(output))
-                              if output[i][c_1] == 1)
+                                if output[i][c_1] == 1)
                     c_2 = random.choices([i for i in range(len(output[0])) if (
                         output[x_1][i] != 1 and output[x_2][i] != 1)])[0]
                     y_1, y_2 = (i for i in range(len(output))
-                              if output[i][c_2] == 1)
+                                if output[i][c_2] == 1)
                     if random.getrandbits(1):
                         y_1, y_2 = y_2, y_1
                     tmp = [i for i in range(len(output[0]))
                            if
-                            (output[x_1][i] == 1 and output[y_1][i] == 1) or
-                            (output[x_2][i] == 1 and output[y_2][i] == 1)]
+                           (output[x_1][i] == 1 and output[y_1][i] == 1) or
+                           (output[x_2][i] == 1 and output[y_2][i] == 1)]
                     if len(tmp) == 0:
                         break
                 except IndexError:
@@ -453,7 +381,7 @@ class Graph:
             output[y_1][c_1] = 1
             output[x_2][c_2] = 1
 
-        return Graph('incmatrix', output)
+        return Graph(Graph._incidence_matrix_to_adjacency_list(output))
 
     @classmethod
     def euler_graph_generator(cls, node: int, edge: int) -> Self:
@@ -479,17 +407,16 @@ class Graph:
         output *= 2
 
         output = list(output)
-        result = cls.from_graphic_sequence('adjlist', output)
+        result = cls.from_graphic_sequence(output)
         if edge+node < node*(node-1)/2:
             result = result.randomize_edges(random.randrange(4))
 
         return result
 
-
     def euler_cycle_finder(self: Self) -> list:
         """Find euler cycle
         Returns list of nodes number counted from 1"""
-        data = self.convert_to('adjlist').data
+        data = self.adjacency_list
         node_id = 0
         while len(data[node_id]) == 0:
             node_id += 1
@@ -498,9 +425,9 @@ class Graph:
         while len(data[node_id]) != 0:
             next_node_id = data[node_id][id_of_next]-1
             ndata = list([j for j in i
-                        if (id not in [node_id, next_node_id] or j-1 not in [node_id, next_node_id])
-                        ]for id, i in enumerate(data))
-            components = [i for i in Graph('adjlist', ndata).find_components() if len(
+                          if (id not in [node_id, next_node_id] or j-1 not in [node_id, next_node_id])
+                          ]for id, i in enumerate(data))
+            components = [i for i in Graph(ndata).find_components() if len(
                 i) > 1 or i[0] == next_node_id+1]
 
             if len(components) == 1:
@@ -518,16 +445,13 @@ class Graph:
         if not isinstance(other, Graph):
             return False
 
-        if self.representation != other.representation:
-            return False
-
-        if str(self.data) != str(other.data):
+        if self.adjacency_list != other.adjacency_list:
             return False
 
         return True
 
     def __repr__(self):
-        return f"Graph({self.representation}, {self.data})"
+        return f"Graph({self.adjacency_list})"
 
 
 if __name__ == "__main__":
