@@ -67,7 +67,7 @@ class Graph:
             raise RuntimeError(
                 f"{l = } is too large for graph where {n = }")
 
-        return cls(cls._adjacency_list_to_adjacency_matrix(output))
+        return cls(cls._adjacency_matrix_to_adjacency_list(output))
 
     @classmethod
     def generate_with_gnp_model(cls, n: int, p: float) -> Self:
