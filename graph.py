@@ -419,7 +419,7 @@ class Graph:
         return Graph(Graph._incidence_matrix_to_adjacency_list(output))
 
     @classmethod
-    def euler_graph_generator(cls, node: int, edge: int) -> Self:
+    def euler_graph_generator(cls, node: int, edge: int, is_connected: bool = True) -> Self:
         """Generate euler graph.
 
         Attributes
@@ -428,23 +428,45 @@ class Graph:
         number of nodes
         edge : int
         number of edges"""
-        edge -= node
-        if edge < 0 or edge+node > node*(node-1)/2:
-            raise ArithmeticError("")
-        output = np.ones(node).astype(int)
+        if node < 0 or edge < 0:
+            raise ArithmeticError("number of node and edge must be positive")
+        output = None
+        if(is_connected):
+            edge -= node
+            if edge < 0 or edge+node > node*(node-1)/2:
+                raise ArithmeticError("number of edge is too big or too small for connected graph")
+            output = np.ones(node).astype(int)
+        else:
+            if edge > node*(node-1)/2:
+                raise ArithmeticError("number of edge is too big")
+            output = np.zeros(node).astype(int)
+            output [random.randint(0, node-1)] = 1
+            edge -= 1
         for _ in range(edge):
-            random_id = random.choice([
-                i for i in range(node)
-                if (2 * output[i] + 1 <= output.sum() and 2*output[i]+2 <= node)
-            ])
+            choices = [i for i in range(node)
+                    if (2 * output[i] + 1 <= output.sum() and 2*output[i]+2 < node)]
+            if not choices:
+                raise ArithmeticError("number of edge and node can't be used to generate euler graph")
+            random_id = random.choice(choices)
             output[random_id] += 1
 
         output *= 2
 
         output = list(output)
         result = cls.from_graphic_sequence(output)
-        if edge+node < node*(node-1)/2:
-            result = result.randomize_edges(random.randrange(4))
+
+        if result is None:
+            raise ArithmeticError("number of edge and node can't be used to generate euler graph")
+
+        try:
+            if edge+node < node*(node-1)/2:
+                result = result.randomize_edges(random.randrange(4))
+        except RuntimeWarning:
+            pass
+
+        if (is_connected):
+            while(len(result.find_components()) != 1):
+                result = result.randomize_edges(random.randrange(1))
 
         return result
 
@@ -472,6 +494,9 @@ class Graph:
                 id_of_next = -1
             else:
                 id_of_next -= 1
+
+        if(node_id != 0):
+            raise ArithmeticError("graph is not euler graph, but has euler path")
 
         output.append(node_id+1)
         return output
