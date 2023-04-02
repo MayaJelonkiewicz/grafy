@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Literal, Self
+from typing import Iterator, Literal, Self
 import random
 import warnings
 import numpy as np
@@ -10,6 +10,24 @@ class Graph:
 
     def __init__(self, adjacency_list: list[list[int]]):
         self.adjacency_list = adjacency_list
+
+    @property
+    def vertex_count(self) -> int:
+        return len(self.adjacency_list)
+
+    @property
+    def edge_count(self) -> int:
+        return sum(map(len, self.adjacency_list)) // 2
+
+    @property
+    def vertex_degrees(self) -> list[int]:
+        return [len(inner_list) for inner_list in self.adjacency_list]
+
+    def iter_edges(self) -> Iterator[tuple[int, int]]:
+        # TODO: use 0-indexing
+        for first_vertex, second_vertices in enumerate(self.adjacency_list, start=1):
+            for second_vertex in second_vertices:
+                yield (first_vertex, second_vertex)
 
     @classmethod
     def parse(cls, representation: Literal["adjlist", "adjmatrix", "incmatrix"], string: str) -> Self:
@@ -469,6 +487,9 @@ class Graph:
 
     def __repr__(self):
         return f"Graph({self.adjacency_list})"
+
+    def __hash__(self):
+        return hash(tuple(frozenset(inner_list) for inner_list in self.adjacency_list))
 
 
 if __name__ == "__main__":
