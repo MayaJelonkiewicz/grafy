@@ -56,7 +56,7 @@ class Graph:
             raise ValueError("l < 0")
 
         if l > n*(n-1)//2:
-            raise RuntimeError(f"{l = } is too large for graph where {n = }")
+            raise ValueError(f"{l = } is too large for graph where {n = }")
 
         output = [[0 for _ in range(n)] for _ in range(n)]
         if 0 < l < n*(n-1)/2:
@@ -105,8 +105,14 @@ class Graph:
 
     @classmethod
     def generate_random_regular(cls, n, k) -> Self:
-        if n <= k:
-            raise ValueError("n <= k")
+        if n < 0:
+            raise ValueError("n < 0")
+
+        if k < 0:
+            raise ValueError("k < 0")
+
+        if k >= n:
+            raise ValueError("k >= n")
 
         if k % 2 == 1 and n % 2 == 1:
             raise ValueError("both k and n are odd")
@@ -290,8 +296,7 @@ class Graph:
             remaining_edges[0] = 0
 
     def find_components(self):
-        """Function, which finds components of the graph and prints the number of the largest one.
-        Its argument is a neighbour list."""
+        """Finds and returns all the components of the graph."""
 
         def components_r(nr: int, v: int, g: list[list[int]], comp: list) -> None:
             for i in range(len(g[v])):
@@ -315,32 +320,31 @@ class Graph:
         return components
 
     def find_hamiltonian_cycle(self):
-        return self._dfs_hamilton_recursive(self.adjacency_list, 1, [0 for _ in self.adjacency_list], [])
-
-    @classmethod
-    def _dfs_hamilton_recursive(cls, adjacency_list: list[list[int]], vertex: int,
-                                visited: list[int], s: list) -> list[int] | None:
         """A function that returns a Hamiltonian cycle of the graph if one exists,
         or None otherwise"""
-        s.append(vertex)
-        if len(s) < len(adjacency_list):
-            visited[vertex-1] = True
-            for i in range(len(adjacency_list[vertex-1])):
-                if not visited[adjacency_list[vertex-1][i]-1]:
-                    result = cls._dfs_hamilton_recursive(
-                        adjacency_list, adjacency_list[vertex-1][i], visited, s)
-                    if result is not None:
-                        return result
-            visited[vertex-1] = False
-            s.pop()
-        else:
-            for i in range(len(adjacency_list[vertex-1])):
-                if adjacency_list[vertex-1][i]-1 == 0:
-                    return s
+        def recurse(adjacency_list: list[list[int]], vertex: int,
+                    visited: list[int], s: list) -> list[int] | None:
+            s.append(vertex)
+            if len(s) < len(adjacency_list):
+                visited[vertex-1] = True
+                for i in range(len(adjacency_list[vertex-1])):
+                    if not visited[adjacency_list[vertex-1][i]-1]:
+                        result = recurse(
+                            adjacency_list, adjacency_list[vertex-1][i], visited, s)
+                        if result is not None:
+                            return result
+                visited[vertex-1] = False
+                s.pop()
+            else:
+                for i in range(len(adjacency_list[vertex-1])):
+                    if adjacency_list[vertex-1][i]-1 == 0:
+                        return s
 
-            s.pop()
+                s.pop()
 
-        return None
+            return None
+
+        return recurse(self.adjacency_list, 1, [0 for _ in self.adjacency_list], [])
 
     def randomize_edges(self, rand_it: int, max_rerolling_attempt: int = 99) -> Self:
         """
