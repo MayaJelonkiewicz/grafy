@@ -20,6 +20,12 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
             adjacency_list.append(adjacencies)
         return cls(adjacency_list)
 
+    def dump(self) -> str:
+        string = ""
+        for row in self.adjacency_list:
+            string += " ".join(map(lambda a: f"{a.vertex}:{a.weight}", row)) + "\n"
+        return string
+
     @classmethod
     def generate_weighted_connected(cls, n: int, l: int) -> Self:
         """Generate random weighted, connected graph using gnl algorithm.

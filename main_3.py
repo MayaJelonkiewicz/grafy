@@ -43,6 +43,11 @@ def task4(_):
     print(f"min-max center: {min_max_center}")
 
 
+def task5(_):
+    graph = WeightedGraph.parse(sys.stdin.read())
+    print(graph.min_spanning_tree().dump())
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="task", required=True)
@@ -57,6 +62,8 @@ def main():
     subparsers.add_parser("3")
 
     subparsers.add_parser("4")
+    
+    subparsers.add_parser("5")
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
@@ -69,6 +76,8 @@ def main():
         task3(arguments)
     elif arguments.task == 4:
         task4(arguments)
+    elif arguments.task == 5:
+        task5(arguments)
 
 
 if __name__ == "__main__":
