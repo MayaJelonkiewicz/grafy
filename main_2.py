@@ -14,6 +14,13 @@ def task1(arguments):
         print('-')
 
 
+def task2(arguments):
+    input_graph = Graph.parse_with_representation(
+        sys.stdin.read(), arguments.input_representation)
+    output_graph = input_graph.randomize_edges(input_graph.edge_count)
+    print(output_graph.dump(arguments.output_representation), end="")
+
+
 def task3(arguments):
     input_graph = Graph.parse_with_representation(
         sys.stdin.read(), arguments.input_representation)
@@ -39,6 +46,12 @@ def main():
     subparser_1.add_argument("-o", "--output-representation",
                              choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
 
+    subparser_2 = subparsers.add_parser("2")
+    subparser_2.add_argument("-i", "--input-representation",
+                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+    subparser_2.add_argument("-o", "--output-representation",
+                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+
     subparser_3 = subparsers.add_parser("3")
     subparser_3.add_argument("-i", "--input-representation",
                              choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
@@ -58,6 +71,8 @@ def main():
 
     if arguments.task == 1:
         task1(arguments)
+    elif arguments.task == 2:
+        task2(arguments)
     elif arguments.task == 3:
         task3(arguments)
     elif arguments.task == 5:
