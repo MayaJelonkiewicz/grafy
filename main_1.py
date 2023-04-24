@@ -18,12 +18,12 @@ def task2(arguments):
         sys.stdin.read(), arguments.input_representation).adjacency_list
 
     graph = nx.Graph()
-    for i in range(1, len(adjacencies) + 1):
+    for i in range(0, len(adjacencies)):
         graph.add_node(i)
     for i in range(len(adjacencies)):
         for j in range(len(adjacencies[i])):
-            if not graph.has_edge(adjacencies[i][j], i+1):
-                graph.add_edge(i+1, adjacencies[i][j])
+            if not graph.has_edge(adjacencies[i][j], i):
+                graph.add_edge(i, adjacencies[i][j])
     pos = nx.circular_layout(graph)
     nx.draw(graph, pos=pos, with_labels=True)
     plt.savefig(arguments.output_filename)

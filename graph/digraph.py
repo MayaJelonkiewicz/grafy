@@ -14,9 +14,8 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
         output = [[] for _ in range(n)]
 
         for i in range(n):
-            for j in range(1, n+1):
-
-                if random.random() <= p and j-1 != i:
+            for j in range(n):
+                if random.random() <= p and j != i:
                     output[i].append(j)
 
         return cls(output)

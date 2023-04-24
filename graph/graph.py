@@ -4,7 +4,7 @@ import random
 import warnings
 import numpy as np
 
-from . import IUndirectedGraph, IUnweightedGraph
+from graph import IUndirectedGraph, IUnweightedGraph
 
 
 class Graph(IUndirectedGraph, IUnweightedGraph):
@@ -65,7 +65,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         if 0 < l < n*(n-1)/2:
             while l > 0:
                 row = random.randrange(0, n)
-                col = random.randrange(1, n)
+                col = random.randrange(0, n)
 
                 if row != col:
                     if output[row][col] == 0:
@@ -108,6 +108,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
     @classmethod
     def generate_random_regular(cls, n, k) -> Self:
+        # TODO: fix use of 1-indexing
+
         if n < 0:
             raise ValueError("n < 0")
 
@@ -150,7 +152,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             row = []
             for id, j in enumerate(i):
                 if j == 1:
-                    row.append(id+1)
+                    row.append(id)
             output.append(row)
         return output
 
@@ -161,7 +163,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         output = [[0 for i in range(node_amount)] for j in range(node_amount)]
         for iid, i in enumerate(input):
             for j in i:
-                output[iid][j-1] = 1
+                output[iid][j] = 1
         return output
 
     @staticmethod
@@ -178,7 +180,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             for j in i:
                 if iid < j:
                     output[iid][col_it] = 1
-                    output[j-1][col_it] = 1
+                    output[j][col_it] = 1
                     col_it += 1
             if col_it == n:
                 break
@@ -195,8 +197,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             for j in range(m):
                 if input[j][i] == 1:
                     if id > -1:
-                        output[id].append(j+1)
-                        output[j].append(id+1)
+                        output[id].append(j)
+                        output[j].append(id)
                         break
                     else:
                         id = j
@@ -292,10 +294,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             # edges
             for index in range(1, remaining_edges[0] + 1):
                 remaining_edges[index] -= 1
-                adjacency_list[vertex_indices[0]].append(
-                    vertex_indices[index] + 1)
-                adjacency_list[vertex_indices[index]].append(
-                    vertex_indices[0] + 1)
+                adjacency_list[vertex_indices[0]].append(vertex_indices[index])
+                adjacency_list[vertex_indices[index]].append(vertex_indices[0])
             remaining_edges[0] = 0
 
     def find_components(self):
@@ -303,23 +303,23 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
         def components_r(nr: int, v: int, g: list[list[int]], comp: list) -> None:
             for i in range(len(g[v])):
-                if comp[g[v][i]-1] == -1:
-                    comp[g[v][i]-1] = nr
-                    components_r(nr, g[v][i]-1, g, comp)
+                if comp[g[v][i]] is None:
+                    comp[g[v][i]] = nr
+                    components_r(nr, g[v][i], g, comp)
 
         nr = 0
         comp = []
         for i in range(len(self.adjacency_list)):
-            comp.append(-1)
+            comp.append(None)
         for i in range(len(self.adjacency_list)):
-            if comp[i] == -1:
-                nr = nr+1
+            if comp[i] is None:
                 comp[i] = nr
                 components_r(nr, i, self.adjacency_list, comp)
+                nr += 1
 
         components = [[] for _ in range(nr)]
         for vertex_index, component_index in enumerate(comp):
-            components[component_index - 1].append(vertex_index + 1)
+            components[component_index].append(vertex_index)
         return components
 
     def find_hamiltonian_cycle(self):
@@ -329,25 +329,25 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                     visited: list[int], s: list) -> list[int] | None:
             s.append(vertex)
             if len(s) < len(adjacency_list):
-                visited[vertex-1] = True
-                for i in range(len(adjacency_list[vertex-1])):
-                    if not visited[adjacency_list[vertex-1][i]-1]:
+                visited[vertex] = True
+                for i in range(len(adjacency_list[vertex])):
+                    if not visited[adjacency_list[vertex][i]]:
                         result = recurse(
-                            adjacency_list, adjacency_list[vertex-1][i], visited, s)
+                            adjacency_list, adjacency_list[vertex][i], visited, s)
                         if result is not None:
                             return result
-                visited[vertex-1] = False
+                visited[vertex] = False
                 s.pop()
             else:
-                for i in range(len(adjacency_list[vertex-1])):
-                    if adjacency_list[vertex-1][i]-1 == 0:
+                for i in range(len(adjacency_list[vertex])):
+                    if adjacency_list[vertex][i] == 0:
                         return s
 
                 s.pop()
 
             return None
 
-        return recurse(self.adjacency_list, 1, [0 for _ in self.adjacency_list], [])
+        return recurse(self.adjacency_list, 0, [0 for _ in self.adjacency_list], [])
 
     def randomize_edges(self, rand_it: int, max_rerolling_attempt: int = 99) -> Self:
         """
@@ -461,6 +461,9 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
     def euler_cycle_finder(self: Self) -> list:
         """Find euler cycle
         Returns list of nodes number counted from 1"""
+
+        # TODO: fix use of 1-indexing
+
         data = self.adjacency_list
         node_id = 0
         while len(data[node_id]) == 0:

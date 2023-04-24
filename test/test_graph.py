@@ -10,8 +10,6 @@ from graph import Graph
 class GraphTestCase(TestCase):
     """Test Graph class"""
 
-    # TODO: change adjlist.txt to use 0-indexing
-
     def setUp(self):
         # hack to use seeded randomness for all tests
         global random  # pylint: disable=global-statement,invalid-name
@@ -24,8 +22,7 @@ class GraphTestCase(TestCase):
             cycle = [*cycle, cycle[0]]
             # check if all relevant edges exist
             if all(b in graph.adjacency_list[a] for a, b in zip(cycle, cycle[1:])):
-                # TODO: use 0-indexing
-                yield [v + 1 for v in cycle][:-1]
+                yield [v for v in cycle][:-1]
 
     @staticmethod
     def has_euler_cycle(graph: Graph) -> bool:
@@ -180,9 +177,8 @@ class GraphTestCase(TestCase):
                 if vertex_1 in adjacency_list[vertex_0]:
                     continue
 
-                # TODO: use 0-indexing
-                adjacency_list[vertex_0].append(vertex_1 + 1)
-                adjacency_list[vertex_1].append(vertex_0 + 1)
+                adjacency_list[vertex_0].append(vertex_1)
+                adjacency_list[vertex_1].append(vertex_0)
 
                 new_component_id = vertex_component_ids[vertex_0]
                 old_component_id = vertex_component_ids[vertex_1]
@@ -193,9 +189,8 @@ class GraphTestCase(TestCase):
             component_ids = list(np.unique(vertex_component_ids))
             components = [[] for _ in component_ids]
             for vertex, vertex_component_id in enumerate(vertex_component_ids):
-                # TODO: use 0-indexing
                 components[component_ids.index(
-                    vertex_component_id)].append(vertex + 1)
+                    vertex_component_id)].append(vertex)
 
             # use set-like type because order is irrelevant
             # use frozenset specifically because it is hashable
@@ -209,10 +204,6 @@ class GraphTestCase(TestCase):
         for vertex_count in range(1, 6):
             for graph in self.generate_all_graphs_with_vertex_count(vertex_count):
                 cycles = list(GraphTestCase.get_all_hamiltonian_cycles(graph))
-
-                for inner_list in graph.adjacency_list:
-                    for index, value in enumerate(inner_list):
-                        inner_list[index] = value + 1  # TODO: use 0-indexing
                 found_cycle = graph.find_hamiltonian_cycle()
                 if found_cycle is not None:
                     self.assertIn(found_cycle, cycles)

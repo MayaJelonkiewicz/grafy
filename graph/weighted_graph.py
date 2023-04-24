@@ -25,6 +25,8 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
         """Generate random weighted, connected graph using gnl algorithm.
            Weights are random numbers from 1 to 10 included."""
 
+        # TODO: fix use of 1-indexing
+
         output = [[] for _ in range(n)]
 
         if l >= n-1:
