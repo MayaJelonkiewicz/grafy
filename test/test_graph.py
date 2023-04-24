@@ -57,8 +57,8 @@ class GraphTestCase(TestCase):
         for representation in representations:
             with open(f"test/resources/graph_representations/{representation}.txt",
                       encoding="utf-8") as file:
-                graphs.append(Graph.parse(
-                    representation, file.read()))  # type: ignore
+                graphs.append(Graph.parse_with_representation(
+                    file.read(), representation)) # type: ignore
 
         # check if all graphs are equal
         for g0, g1 in zip(graphs, graphs[1:]):
@@ -68,14 +68,14 @@ class GraphTestCase(TestCase):
         representations = ["adjlist", "adjmatrix", "incmatrix"]
 
         with open("test/resources/graph_representations/adjlist.txt", encoding="utf-8") as file:
-            graph = Graph.parse(
-                "adjlist", file.read())
+            graph = Graph.parse_with_representation(file.read(), "adjlist")
 
         for representation in representations:
             with open(f"test/resources/graph_representations/{representation}.txt", "r",
                       encoding="utf-8") as file:
+                a = file.read()
                 self.assertEqual(graph.dump(representation),  # type: ignore
-                                 file.read())
+                                 a)
 
     def test_gnl_generation_edge_count(self):
         for n in range(10):

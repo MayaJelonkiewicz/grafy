@@ -1,36 +1,21 @@
 from __future__ import annotations
-from typing import Iterator, Literal, Self
+from typing import Literal, Self
 import random
 import warnings
 import numpy as np
 
+from . import IUndirectedGraph, IUnweightedGraph
 
-class Graph:
+
+class Graph(IUndirectedGraph, IUnweightedGraph):
     """A graph with a given representation"""
-
-    def __init__(self, adjacency_list: list[list[int]]):
-        self.adjacency_list = adjacency_list
-
-    @property
-    def vertex_count(self) -> int:
-        return len(self.adjacency_list)
-
-    @property
-    def edge_count(self) -> int:
-        return sum(map(len, self.adjacency_list)) // 2
 
     @property
     def vertex_degrees(self) -> list[int]:
         return [len(inner_list) for inner_list in self.adjacency_list]
 
-    def iter_edges(self) -> Iterator[tuple[int, int]]:
-        # TODO: use 0-indexing
-        for first_vertex, second_vertices in enumerate(self.adjacency_list, start=1):
-            for second_vertex in second_vertices:
-                yield (first_vertex, second_vertex)
-
     @classmethod
-    def parse(cls, representation: Literal["adjlist", "adjmatrix", "incmatrix"], string: str) -> Self:
+    def parse_with_representation(cls, string: str, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> Self:
         "parse raw string data into a Graph object"
 
         data = [[int(value) for value in line.split()]
@@ -431,22 +416,24 @@ class Graph:
         if node < 0 or edge < 0:
             raise ArithmeticError("number of node and edge must be positive")
         output = None
-        if(is_connected):
+        if (is_connected):
             edge -= node
             if edge < 0 or edge+node > node*(node-1)/2:
-                raise ArithmeticError("number of edge is too big or too small for connected graph")
+                raise ArithmeticError(
+                    "number of edge is too big or too small for connected graph")
             output = np.ones(node).astype(int)
         else:
             if edge > node*(node-1)/2:
                 raise ArithmeticError("number of edge is too big")
             output = np.zeros(node).astype(int)
-            output [random.randint(0, node-1)] = 1
+            output[random.randint(0, node-1)] = 1
             edge -= 1
         for _ in range(edge):
             choices = [i for i in range(node)
-                    if (2 * output[i] + 1 <= output.sum() and 2*output[i]+2 < node)]
+                       if (2 * output[i] + 1 <= output.sum() and 2*output[i]+2 < node)]
             if not choices:
-                raise ArithmeticError("number of edge and node can't be used to generate euler graph")
+                raise ArithmeticError(
+                    "number of edge and node can't be used to generate euler graph")
             random_id = random.choice(choices)
             output[random_id] += 1
 
@@ -456,7 +443,8 @@ class Graph:
         result = cls.from_graphic_sequence(output)
 
         if result is None:
-            raise ArithmeticError("number of edge and node can't be used to generate euler graph")
+            raise ArithmeticError(
+                "number of edge and node can't be used to generate euler graph")
 
         try:
             if edge+node < node*(node-1)/2:
@@ -465,7 +453,7 @@ class Graph:
             pass
 
         if (is_connected):
-            while(len(result.find_components()) != 1):
+            while (len(result.find_components()) != 1):
                 result = result.randomize_edges(random.randrange(1))
 
         return result
@@ -495,8 +483,9 @@ class Graph:
             else:
                 id_of_next -= 1
 
-        if(node_id != 0):
-            raise ArithmeticError("graph is not euler graph, but has euler path")
+        if (node_id != 0):
+            raise ArithmeticError(
+                "graph is not euler graph, but has euler path")
 
         output.append(node_id+1)
         return output

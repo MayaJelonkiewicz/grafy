@@ -1,26 +1,12 @@
 from __future__ import annotations
 from random import randrange
 from typing import Self
-from graph import Graph
 
-import numpy as np
+from graph import Graph, IUndirectedGraph, IWeightedGraph
 
 
-class WeightedGraph:
+class WeightedGraph(IUndirectedGraph, IWeightedGraph):
     """A weighted graph stored as an adjacency list"""
-
-    class Adjacency:
-        """An entry in the adjacency list of a WeightedGraph"""
-
-        def __init__(self, vertex, weight):
-            self.vertex = vertex
-            self.weight = weight
-
-        def __repr__(self):
-            return f"{self.vertex} {self.weight}"
-
-    def __init__(self, adjacency_list: list[list[Adjacency]]):
-        self.adjacency_list = adjacency_list
 
     @classmethod
     def parse(cls, string: str) -> Self:
@@ -30,7 +16,7 @@ class WeightedGraph:
             adjacencies = []
             for pair in line.split(","):
                 vertex, weight = map(int, pair.strip().split(":"))
-                adjacencies.append(cls.Adjacency(vertex, weight))
+                adjacencies.append(IWeightedGraph.Adjacency(vertex, weight))
             adjacency_list.append(adjacencies)
         return cls(adjacency_list)
 
@@ -57,7 +43,8 @@ class WeightedGraph:
                     v1 = toAdd[i] - 1
                     v2 = mainComp[randrange(0, len(mainComp))] - 1
 
-                    edges = [i for i in range(0, n) if graph.adjacency_list[v2][i] == 1]
+                    edges = [i for i in range(
+                        0, n) if graph.adjacency_list[v2][i] == 1]
 
                     toDel = graph.adjacency_list[v1].index(
                         1) if 1 in graph.adjacency_list[v1] else None
@@ -88,8 +75,8 @@ class WeightedGraph:
                 for j in adjlist[i]:
                     weight = randrange(1, 10 + 1)
 
-                    output[i].append(cls.Adjacency(j, weight))
-                    output[j-1].append(cls.Adjacency(i + 1, weight))
+                    output[i].append(IWeightedGraph.Adjacency(j, weight))
+                    output[j-1].append(IWeightedGraph.Adjacency(i + 1, weight))
 
                     adjlist[j-1].remove(i + 1)
         else:
@@ -206,7 +193,7 @@ class WeightedGraph:
                 min_max = tab_max[k]
                 id = k
         return id
-    
+
     def min_spanning_tree(self) -> WeightedGraph:
         """Finds the minimum spanning tree of a graph using Kruskal's algorithm"""
         def find_set(x: int, parent: list) -> int:
@@ -214,7 +201,7 @@ class WeightedGraph:
             if x != parent[x]:
                 parent[x] = find_set(parent[x], parent)
             return parent[x]
-        
+
         def union(x: int, y: int, parent: list, rank: list):
             """A function that unites two sets"""
             x_root = find_set(x, parent)
@@ -226,24 +213,26 @@ class WeightedGraph:
             else:
                 parent[y_root] = x_root
                 rank[x_root] += 1
-        
+
         parent = list(range(len(self.adjacency_list)))
-        rank = [0 for i in range(len(self.adjacency_list)) ]
-        
+        rank = [0 for i in range(len(self.adjacency_list))]
+
         edges = [
-            (self.adjacency_list[i][j].weight, i, self.adjacency_list[i][j].vertex)
+            (self.adjacency_list[i][j].weight,
+             i, self.adjacency_list[i][j].vertex)
             for i in range(len(self.adjacency_list))
             for j in range(len(self.adjacency_list[i]))
-            ]
+        ]
         edges.sort()
         result = [[] for i in range(len(self.adjacency_list))]
         for edge in edges:
             weight, x_v, y_v = edge
             if find_set(x_v, parent) != find_set(y_v, parent):
-                result[x_v].append(WeightedGraph.Adjacency(y_v, weight))
-                result[y_v].append(WeightedGraph.Adjacency(x_v, weight))
+                result[x_v].append(IWeightedGraph.Adjacency(y_v, weight))
+                result[y_v].append(IWeightedGraph.Adjacency(x_v, weight))
                 union(x_v, y_v, parent, rank)
         return WeightedGraph(result)
+
 
 if __name__ == "__main__":
     pass

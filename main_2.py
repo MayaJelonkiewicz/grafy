@@ -15,7 +15,8 @@ def task1(arguments):
 
 
 def task3(arguments):
-    input_graph = Graph.parse(arguments.input_representation, sys.stdin.read())
+    input_graph = Graph.parse_with_representation(
+        sys.stdin.read(), arguments.input_representation)
     print(*max(input_graph.find_components(), key=len))
 
 
@@ -25,7 +26,8 @@ def task5(arguments):
 
 
 def task6(arguments):
-    input_graph = Graph.parse(arguments.input_representation, sys.stdin.read())
+    input_graph = Graph.parse_with_representation(
+        sys.stdin.read(), arguments.input_representation)
     print('tak' if input_graph.find_hamiltonian_cycle() is not None else 'nie')
 
 

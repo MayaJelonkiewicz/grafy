@@ -8,13 +8,14 @@ from graph import Graph
 
 
 def task1(arguments):
-    graph = Graph.parse(arguments.input_representation, sys.stdin.read())
+    graph = Graph.parse_with_representation(
+        sys.stdin.read(), arguments.input_representation)
     print(graph.dump(arguments.output_representation), end="")
 
 
 def task2(arguments):
-    adjacencies = Graph.parse(
-        arguments.input_representation, sys.stdin.read()).adjacency_list
+    adjacencies = Graph.parse_with_representation(
+        sys.stdin.read(), arguments.input_representation).adjacency_list
 
     graph = nx.Graph()
     for i in range(1, len(adjacencies) + 1):

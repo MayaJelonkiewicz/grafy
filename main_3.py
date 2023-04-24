@@ -1,10 +1,14 @@
 import argparse
 import sys
 
-from weighted_graph import WeightedGraph
+from graph import WeightedGraph
+
 
 def task1(arguments):
-    print(repr(WeightedGraph.generate_weighted_connected(arguments.n, arguments.l).adjacency_list))
+    print(repr(WeightedGraph.generate_weighted_connected(
+        arguments.n, arguments.l).adjacency_list))
+
+
 def task2(arguments):
     graph = WeightedGraph.parse(sys.stdin.read())
     distances, predecessors = graph.dijkstra(arguments.v)

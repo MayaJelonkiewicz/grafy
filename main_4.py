@@ -1,5 +1,5 @@
 import argparse
-from digraph import Digraph
+from graph import Digraph
 
 def task1(arguments):
     print(Digraph.generate_with_gnp_model(arguments.n, arguments.p).data_to_string())
