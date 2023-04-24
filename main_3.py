@@ -39,8 +39,8 @@ def task4(_):
     graph = WeightedGraph.parse(sys.stdin.read())
     min_sum_center = graph.find_min_sum_center()
     min_max_center = graph.find_min_max_center()
-    print(f'centrum: {min_sum_center}')
-    print(f'centrum minimax: {min_max_center}')
+    print(f"center: {min_sum_center}")
+    print(f"min-max center: {min_max_center}")
 
 
 def main():

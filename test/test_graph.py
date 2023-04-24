@@ -82,7 +82,7 @@ class GraphTestCase(TestCase):
                 self.assertEqual(
                     generated_edge_count,
                     l,
-                    f'{n=}, {l=}, {generated_edge_count=}'
+                    f"{n=}, {l=}, {generated_edge_count=}"
                 )
 
     def test_gnl_generation_invalid_arguments(self):

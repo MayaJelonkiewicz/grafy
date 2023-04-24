@@ -15,7 +15,9 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         return [len(inner_list) for inner_list in self.adjacency_list]
 
     @classmethod
-    def parse_with_representation(cls, string: str, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> Self:
+    def parse_with_representation(
+        cls, string: str, representation: Literal["adjlist", "adjmatrix", "incmatrix"]
+    ) -> Self:
         "parse raw string data into a Graph object"
 
         data = [[int(value) for value in line.split()]
@@ -364,7 +366,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         node_n = len(output)
         if node_n*(node_n-1)/2 - 2 < len(output[0]):
             warnings.warn(
-                'this graph have no free space for randomizing edge', RuntimeWarning)
+                "this graph have no free space for randomizing edge", RuntimeWarning)
             return Graph(Graph._incidence_matrix_to_adjacency_list(output))
 
         x_1, x_2, y_1, y_2 = None, None, None, None
@@ -373,7 +375,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         for _ in range(rand_it):
             while True:
                 if rer_att == 0:
-                    warnings.warn('failed to find pair of edges to swap in a max_rerolling_attempt',
+                    warnings.warn("failed to find pair of edges to swap in a max_rerolling_attempt",
                                   RuntimeWarning)
                     return Graph(Graph._incidence_matrix_to_adjacency_list(output))
                 rer_att -= 1
@@ -416,7 +418,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         if node < 0 or edge < 0:
             raise ArithmeticError("number of node and edge must be positive")
         output = None
-        if (is_connected):
+        if is_connected:
             edge -= node
             if edge < 0 or edge+node > node*(node-1)/2:
                 raise ArithmeticError(
@@ -452,8 +454,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         except RuntimeWarning:
             pass
 
-        if (is_connected):
-            while (len(result.find_components()) != 1):
+        if is_connected:
+            while len(result.find_components()) != 1:
                 result = result.randomize_edges(random.randrange(1))
 
         return result
@@ -472,9 +474,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         output = list()
         while len(data[node_id]) != 0:
             next_node_id = data[node_id][id_of_next]-1
-            ndata = list([j for j in i
-                          if (id not in [node_id, next_node_id] or j-1 not in [node_id, next_node_id])
-                          ]for id, i in enumerate(data))
+            ndata = list([j for j in i if (id not in [node_id, next_node_id]
+                         or j-1 not in [node_id, next_node_id])] for id, i in enumerate(data))
             components = [i for i in Graph(ndata).find_components() if len(
                 i) > 1 or i[0] == next_node_id+1]
 
@@ -486,7 +487,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             else:
                 id_of_next -= 1
 
-        if (node_id != 0):
+        if node_id != 0:
             raise ArithmeticError(
                 "graph is not euler graph, but has euler path")
 

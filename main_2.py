@@ -5,13 +5,13 @@ from graph import Graph
 
 
 def task1(arguments):
-    sequence = [int(v) for v in sys.stdin.read().split(' ')]
+    sequence = [int(v) for v in sys.stdin.read().split(" ")]
     if Graph.check_if_sequence_is_graphic(sequence):
         output_graph = Graph.from_graphic_sequence(sequence)
         assert output_graph is not None
         print(output_graph.dump(arguments.output_representation), end="")
     else:
-        print('-')
+        print("-")
 
 
 def task2(arguments):
@@ -35,7 +35,7 @@ def task5(arguments):
 def task6(arguments):
     input_graph = Graph.parse_with_representation(
         sys.stdin.read(), arguments.input_representation)
-    print('tak' if input_graph.find_hamiltonian_cycle() is not None else 'nie')
+    print("yes" if input_graph.find_hamiltonian_cycle() is not None else "no")
 
 
 def main():

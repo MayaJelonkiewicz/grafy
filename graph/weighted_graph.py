@@ -35,20 +35,20 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
             comp_list = graph.find_components()
             comp_list.sort(key=len)
 
-            while (len(comp_list) > 1):
+            while len(comp_list) > 1:
                 comp_list.sort(key=len)
-                toAdd = comp_list[0]
-                mainComp = comp_list[-1]
+                to_add = comp_list[0]
+                main_comp = comp_list[-1]
                 prev = comp_list[0][0]
 
-                for i in range(len(toAdd)):
-                    v1 = toAdd[i] - 1
-                    v2 = mainComp[randrange(0, len(mainComp))] - 1
+                for i in range(len(to_add)):
+                    v1 = to_add[i] - 1
+                    v2 = main_comp[randrange(0, len(main_comp))] - 1
 
                     edges = [i for i in range(
                         0, n) if graph.adjacency_list[v2][i] == 1]
 
-                    toDel = graph.adjacency_list[v1].index(
+                    to_del = graph.adjacency_list[v1].index(
                         1) if 1 in graph.adjacency_list[v1] else None
 
                     choice = edges[randrange(0, len(edges))]
@@ -56,20 +56,20 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
                     graph.adjacency_list[v1][v2] = graph.adjacency_list[v2][v1] = 1
                     graph.adjacency_list[v2][choice] = graph.adjacency_list[choice][v2] = 0
 
-                    if toDel != None:
-                        graph.adjacency_list[v2][toDel] = graph.adjacency_list[toDel][v2] = 0
+                    if to_del is not None:
+                        graph.adjacency_list[v2][to_del] = graph.adjacency_list[to_del][v2] = 0
 
                     prev = v2
 
                     comp_list = graph.find_components()
 
-                    mainComp.remove(prev+1)
+                    main_comp.remove(prev+1)
 
                     if 1 not in graph.adjacency_list[choice]:
-                        mainComp.remove(choice+1)
+                        main_comp.remove(choice+1)
 
-                    if mainComp == []:
-                        mainComp = comp_list[-1]
+                    if main_comp == []:
+                        main_comp = comp_list[-1]
 
             adjlist = graph.adjacency_list
 
@@ -117,25 +117,25 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
         init_result = init(self, s)
         d = init_result[0]
         p = init_result[1]
-        S = []
-        Q = []
+        s_list = []
+        q_list = []
         for i in range(len(self.adjacency_list)):
-            Q.append(i)
+            q_list.append(i)
         min_d = 1e7
         id = -1
-        while len(Q) > 0:
+        while len(q_list) > 0:
             min_d = 1e7
-            for j in range(len(Q)):
-                if d[Q[j]] < min_d:
-                    min_d = d[Q[j]]
-                    id = Q[j]
-            S.append(id)
-            Q.remove(id)
+            for j in range(len(q_list)):
+                if d[q_list[j]] < min_d:
+                    min_d = d[q_list[j]]
+                    id = q_list[j]
+            s_list.append(id)
+            q_list.remove(id)
             for k in range(len(self.adjacency_list[id])):
                 w = self.adjacency_list[id][k].vertex
                 fl = False
-                for l in range(len(Q)):
-                    if Q[l] == w:
+                for l in range(len(q_list)):
+                    if q_list[l] == w:
                         fl = True
                 if not fl:
                     continue
