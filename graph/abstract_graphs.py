@@ -3,9 +3,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Iterator, Self
 
 
-# TODO: use Edge object regardless of the type of graph
-# for now, undirected graphs store ints and weighted graphs store Adjacency objects
-
 class IGraph(ABC):
     """Abstract type for all graphs"""
 

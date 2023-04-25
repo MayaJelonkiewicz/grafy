@@ -372,7 +372,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         if node_n*(node_n-1)/2 - 2 < len(output[0]):
             warnings.warn(
                 "this graph have no free space for randomizing edge", RuntimeWarning)
-            return Graph(Graph._incidence_matrix_to_adjacency_list(output))
+            return Graph(Graph._incidence_matrix_to_adjacency_list(output.tolist()))
 
         for _ in range(rand_it):
             possibilities = list()
@@ -411,7 +411,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                 output[y1, c2] = 0
                 output[y1, c1] = 1
 
-        return Graph(Graph._incidence_matrix_to_adjacency_list(output))
+        return Graph(Graph._incidence_matrix_to_adjacency_list(output.tolist()))
 
     @classmethod
     def euler_graph_generator(cls, node: int, edge: int, is_connected: bool = True) -> Self:

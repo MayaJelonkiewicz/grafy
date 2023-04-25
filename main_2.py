@@ -27,6 +27,13 @@ def task3(arguments):
     print(*max(input_graph.find_components(), key=len))
 
 
+def task4(arguments):
+    graph = Graph.euler_graph_generator(arguments.n, arguments.k)
+    cycle = graph.euler_cycle_finder()
+    print(" ".join(map(str, cycle)))
+    print(graph.dump(arguments.output_representation))
+
+
 def task5(arguments):
     output_graph = Graph.generate_random_regular(arguments.n, arguments.k)
     print(output_graph.dump(arguments.output_representation), end="")
@@ -56,6 +63,12 @@ def main():
     subparser_3.add_argument("-i", "--input-representation",
                              choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
 
+    subparser_4 = subparsers.add_parser("4")
+    subparser_4.add_argument("n", type=int)
+    subparser_4.add_argument("k", type=int)
+    subparser_4.add_argument("-o", "--output-representation",
+                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+
     subparser_5 = subparsers.add_parser("5")
     subparser_5.add_argument("n", type=int)
     subparser_5.add_argument("k", type=int)
@@ -75,6 +88,8 @@ def main():
         task2(arguments)
     elif arguments.task == 3:
         task3(arguments)
+    elif arguments.task == 4:
+        task4(arguments)
     elif arguments.task == 5:
         task5(arguments)
     elif arguments.task == 6:
