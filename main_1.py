@@ -45,13 +45,13 @@ def main():
 
     subparser_1 = subparsers.add_parser("1")
     subparser_1.add_argument("-i", "--input-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
     subparser_1.add_argument("-o", "--output-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
 
     subparser_2 = subparsers.add_parser("2")
     subparser_2.add_argument("-i", "--input-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
     subparser_2.add_argument("-o", "--output-filename", default="output.png")
 
     subparser_3 = subparsers.add_parser("3")

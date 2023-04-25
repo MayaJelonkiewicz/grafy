@@ -15,10 +15,15 @@ def task1(arguments):
 
 
 def task2(arguments):
-    input_graph = Graph.parse_with_representation(
-        sys.stdin.read(), arguments.input_representation)
-    output_graph = input_graph.randomize_edges(input_graph.edge_count)
-    print(output_graph.dump(arguments.output_representation), end="")
+    sequence = [int(v) for v in sys.stdin.read().split(" ")]
+    if Graph.check_if_sequence_is_graphic(sequence):
+        graph_from_sequence = Graph.from_graphic_sequence(sequence)
+        assert graph_from_sequence is not None
+        output_graph = graph_from_sequence.randomize_edges(
+            graph_from_sequence.edge_count)
+        print(output_graph.dump(arguments.output_representation), end="")
+    else:
+        print("-")
 
 
 def task3(arguments):
@@ -51,33 +56,31 @@ def main():
 
     subparser_1 = subparsers.add_parser("1")
     subparser_1.add_argument("-o", "--output-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
 
     subparser_2 = subparsers.add_parser("2")
-    subparser_2.add_argument("-i", "--input-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
     subparser_2.add_argument("-o", "--output-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
 
     subparser_3 = subparsers.add_parser("3")
     subparser_3.add_argument("-i", "--input-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
 
     subparser_4 = subparsers.add_parser("4")
     subparser_4.add_argument("n", type=int)
     subparser_4.add_argument("k", type=int)
     subparser_4.add_argument("-o", "--output-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
 
     subparser_5 = subparsers.add_parser("5")
     subparser_5.add_argument("n", type=int)
     subparser_5.add_argument("k", type=int)
     subparser_5.add_argument("-o", "--output-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
 
     subparser_6 = subparsers.add_parser("6")
     subparser_6.add_argument("-i", "--input-representation",
-                             choices=["adjlist", "adjmatrix", "incmatrix"], required=True)
+                             choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
