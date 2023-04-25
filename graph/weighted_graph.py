@@ -31,8 +31,6 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
         """Generate random weighted, connected graph using gnl algorithm.
            Weights are random numbers from 1 to 10 included."""
 
-        # TODO: fix use of 1-indexing
-
         output = [[] for _ in range(n)]
 
         if l >= n-1:
@@ -41,52 +39,55 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
             comp_list = graph.find_components()
             comp_list.sort(key=len)
 
+            adj_mat = Graph._adjacency_list_to_adjacency_matrix(graph.adjacency_list)
+
             while len(comp_list) > 1:
+                adj_mat = Graph._adjacency_list_to_adjacency_matrix(graph.adjacency_list)
                 comp_list.sort(key=len)
                 to_add = comp_list[0]
                 main_comp = comp_list[-1]
                 prev = comp_list[0][0]
 
                 for i in range(len(to_add)):
-                    v1 = to_add[i] - 1
-                    v2 = main_comp[randrange(0, len(main_comp))] - 1
+                    v1 = to_add[i]
+                    v2 = main_comp[randrange(0, len(main_comp))]
 
                     edges = [i for i in range(
-                        0, n) if graph.adjacency_list[v2][i] == 1]
+                        0, n) if adj_mat[v2][i] == 1]
 
-                    to_del = graph.adjacency_list[v1].index(
-                        1) if 1 in graph.adjacency_list[v1] else None
+                    to_del = adj_mat[v1].index(
+                        1) if 1 in adj_mat[v1] else None
 
                     choice = edges[randrange(0, len(edges))]
 
-                    graph.adjacency_list[v1][v2] = graph.adjacency_list[v2][v1] = 1
-                    graph.adjacency_list[v2][choice] = graph.adjacency_list[choice][v2] = 0
+                    adj_mat[v1][v2] = adj_mat[v2][v1] = 1
+                    adj_mat[v2][choice] = adj_mat[choice][v2] = 0
 
                     if to_del is not None:
-                        graph.adjacency_list[v2][to_del] = graph.adjacency_list[to_del][v2] = 0
+                        adj_mat[v2][to_del] = adj_mat[to_del][v2] = 0
 
                     prev = v2
 
+                    graph.adjacency_list = Graph._adjacency_matrix_to_adjacency_list(adj_mat)
                     comp_list = graph.find_components()
 
-                    main_comp.remove(prev+1)
+                    main_comp.remove(prev)
 
-                    if 1 not in graph.adjacency_list[choice]:
-                        main_comp.remove(choice+1)
+                    if 1 not in adj_mat[choice]:
+                        main_comp.remove(choice)
 
                     if main_comp == []:
                         main_comp = comp_list[-1]
 
             adjlist = graph.adjacency_list
-
             for i in range(n):
                 for j in adjlist[i]:
                     weight = randrange(1, 10 + 1)
 
                     output[i].append(IWeightedGraph.Adjacency(j, weight))
-                    output[j-1].append(IWeightedGraph.Adjacency(i + 1, weight))
+                    output[j].append(IWeightedGraph.Adjacency(i, weight))
 
-                    adjlist[j-1].remove(i + 1)
+                    adjlist[j].remove(i)
         else:
             raise RuntimeError(
                 f"{l = } is too small to make connected graph of {n = } vertexes."
