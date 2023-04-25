@@ -351,7 +351,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
         return recurse(self.adjacency_list, 0, [0 for _ in self.adjacency_list], [])
 
-    def randomize_edges(self, rand_it: int, max_rerolling_attempt: int = 99) -> Self:
+    def randomize_edges(self, rand_it: int) -> Self:
         """
         A function that returns graph with rerandomized edges, nodes degree is kept.
 
@@ -362,46 +362,54 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         max_rerolling_attempt : int, optional
         how much attempts in finding swap pair before abandoning (default is 99)
         """
-        output = Graph._adjacency_list_to_incidence_matrix(self.adjacency_list)
+        def _check_if_can_swap(y1, y2, edgesFromx1, edgesFromx2):
+            return (len(output[y1, [edgesFromx1]].nonzero()[0]) == 0 and
+                    len(output[y2, [edgesFromx2]].nonzero()[0]) == 0)
+
+        output = np.array(
+            Graph._adjacency_list_to_incidence_matrix(self.adjacency_list))
         node_n = len(output)
         if node_n*(node_n-1)/2 - 2 < len(output[0]):
             warnings.warn(
                 "this graph have no free space for randomizing edge", RuntimeWarning)
             return Graph(Graph._incidence_matrix_to_adjacency_list(output))
 
-        x_1, x_2, y_1, y_2 = None, None, None, None
-        c_1, c_2 = None, None
-        rer_att = max_rerolling_attempt
         for _ in range(rand_it):
-            while True:
-                if rer_att == 0:
-                    warnings.warn("failed to find pair of edges to swap in a max_rerolling_attempt",
-                                  RuntimeWarning)
-                    return Graph(Graph._incidence_matrix_to_adjacency_list(output))
-                rer_att -= 1
-                try:
-                    c_1 = random.randint(0, len(output[0])-1)
-                    x_1, x_2 = (i for i in range(len(output))
-                                if output[i][c_1] == 1)
-                    c_2 = random.choices([i for i in range(len(output[0])) if (
-                        output[x_1][i] != 1 and output[x_2][i] != 1)])[0]
-                    y_1, y_2 = (i for i in range(len(output))
-                                if output[i][c_2] == 1)
-                    if random.getrandbits(1):
-                        y_1, y_2 = y_2, y_1
-                    tmp = [i for i in range(len(output[0]))
-                           if
-                           (output[x_1][i] == 1 and output[y_1][i] == 1) or
-                           (output[x_2][i] == 1 and output[y_2][i] == 1)]
-                    if len(tmp) == 0:
-                        break
-                except IndexError:
-                    pass
+            possibilities = list()
+            x1, x2, y1, y2 = None, None, None, None
+            for i in range(len(output[0])):
+                for j in range(i+1, len(output[0])):
+                    x1, x2 = output[:, i].nonzero()[0]
+                    if ((x1 not in output[:, j].nonzero()[0]) and (x2 not in output[:, j].nonzero()[0])):
+                        edgesFromx1 = output[x1].nonzero()[0]
+                        edgesFromx2 = output[x2].nonzero()[0]
+                        y1, y2 = output[:, j].nonzero()[0]
+                        edgesfromx = np.unique(
+                            np.concatenate((edgesFromx1, edgesFromx2)))
+                        if (_check_if_can_swap(y1, y2, edgesFromx1, edgesFromx2)
+                           or
+                           _check_if_can_swap(y2, y1, edgesFromx1, edgesFromx2)):
+                            possibilities.append((i, j))
 
-            output[x_2][c_1] = 0
-            output[y_1][c_2] = 0
-            output[y_1][c_1] = 1
-            output[x_2][c_2] = 1
+            if (not possibilities):
+                break
+            c1, c2 = random.choice(possibilities)
+            x1, x2 = output[:, c1].nonzero()[0]
+            y1, y2 = output[:, c2].nonzero()[0]
+            edgesFromx1 = output[x1].nonzero()[0]
+            edgesFromx2 = output[x2].nonzero()[0]
+            if ((not _check_if_can_swap(y1, y2, edgesFromx1, edgesFromx2))
+                or (random.randint(0, 1) == 0 and
+                    _check_if_can_swap(y2, y1, edgesFromx1, edgesFromx2))):
+                output[x1, c1] = 0
+                output[x1, c2] = 1
+                output[y1, c2] = 0
+                output[y1, c1] = 1
+            else:
+                output[x2, c1] = 0
+                output[x2, c2] = 1
+                output[y1, c2] = 0
+                output[y1, c1] = 1
 
         return Graph(Graph._incidence_matrix_to_adjacency_list(output))
 
@@ -463,9 +471,6 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
     def euler_cycle_finder(self: Self) -> list:
         """Find euler cycle
         Returns list of nodes number counted from 1"""
-
-        # TODO: fix use of 1-indexing
-
         data = self.adjacency_list
         node_id = 0
         while len(data[node_id]) == 0:
@@ -473,15 +478,15 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         id_of_next = -1
         output = list()
         while len(data[node_id]) != 0:
-            next_node_id = data[node_id][id_of_next]-1
+            next_node_id = data[node_id][id_of_next]
             ndata = list([j for j in i if (id not in [node_id, next_node_id]
-                         or j-1 not in [node_id, next_node_id])] for id, i in enumerate(data))
+                         or j not in [node_id, next_node_id])] for id, i in enumerate(data))
             components = [i for i in Graph(ndata).find_components() if len(
-                i) > 1 or i[0] == next_node_id+1]
+                i) > 1 or i[0] == next_node_id]
 
             if len(components) == 1:
                 data = ndata
-                output.append(node_id+1)
+                output.append(node_id)
                 node_id = next_node_id
                 id_of_next = -1
             else:
@@ -491,7 +496,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             raise ArithmeticError(
                 "graph is not euler graph, but has euler path")
 
-        output.append(node_id+1)
+        output.append(node_id)
         return output
 
     def __eq__(self, other: object) -> bool:
