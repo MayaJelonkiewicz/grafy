@@ -3,7 +3,6 @@ from graph import Digraph
 from graph import Graph
 from graph import WeightedGraph
 
-
 def draw_digraph(toDraw: Digraph, layout="circo"):
 
     if layout.casefold() == "circo" or layout.casefold() == "neato" or layout.casefold() == "dot":
