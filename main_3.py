@@ -62,7 +62,7 @@ def main():
     subparsers.add_parser("3")
 
     subparsers.add_parser("4")
-    
+
     subparsers.add_parser("5")
 
     arguments = parser.parse_args()
