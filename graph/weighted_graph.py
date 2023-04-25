@@ -35,7 +35,7 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
 
         if l >= n-1:
             graph = Graph.generate_with_gnl_model(n, l)
-
+            
             comp_list = graph.find_components()
             comp_list.sort(key=len)
 
@@ -80,6 +80,7 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
                         main_comp = comp_list[-1]
 
             adjlist = graph.adjacency_list
+            
             for i in range(n):
                 for j in adjlist[i]:
                     weight = randrange(1, 10 + 1)
