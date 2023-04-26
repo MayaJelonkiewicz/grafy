@@ -386,6 +386,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                             possibilities.append((i, j))
 
             if (not possibilities):
+                warnings.warn('couldn\'t find any possible swap', RuntimeWarning)
                 break
             c1, c2 = random.choice(possibilities)
             x1, x2 = output[:, c1].nonzero()[0]
