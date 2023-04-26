@@ -357,8 +357,6 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         -------------
         rand_it : int
         number of randomization
-        max_rerolling_attempt : int, optional
-        how much attempts in finding swap pair before abandoning (default is 99)
         """
         def _check_if_can_swap(y1, y2, edgesFromx1, edgesFromx2):
             return (len(output[y1, [edgesFromx1]].nonzero()[0]) == 0 and
@@ -418,7 +416,9 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         node : int
         number of nodes
         edge : int
-        number of edges"""
+        number of edges
+        is_connected : bool
+        whether or not the graph needs to be connected"""
         if node < 0 or edge < 0:
             raise ArithmeticError("number of node and edge must be positive")
         output = None
