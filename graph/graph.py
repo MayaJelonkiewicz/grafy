@@ -110,8 +110,6 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
     @classmethod
     def generate_random_regular(cls, n, k) -> Self:
-        # TODO: fix use of 1-indexing
-
         if n < 0:
             raise ValueError("n < 0")
 
