@@ -1,7 +1,8 @@
+import argparse
+import sys
 import pygraphviz as pgv
-from graph import Digraph
-from graph import Graph
-from graph import WeightedGraph
+from graph import Graph, Digraph, WeightedGraph
+
 
 def draw_digraph(toDraw: Digraph, layout="circo"):
 
@@ -20,11 +21,11 @@ def draw_digraph(toDraw: Digraph, layout="circo"):
             for j in range(len(toDraw.adjacency_list[i])):
                 G.add_edge(i, toDraw.adjacency_list[i][j])
 
-
         G.layout(prog=layout)
-        G.draw("test.png")
+        G.draw("graph.png")
     else:
         raise ValueError("Invalid layout.")
+
 
 def draw_graph(toDraw: Graph, layout="circo"):
 
@@ -42,10 +43,9 @@ def draw_graph(toDraw: Graph, layout="circo"):
         for i in range(toDraw.vertex_count):
             for j in range(len(toDraw.adjacency_list[i])):
                 G.add_edge(i, toDraw.adjacency_list[i][j])
-        
 
         G.layout(prog=layout)
-        G.draw("test.png")
+        G.draw("graph.png")
     else:
         raise ValueError("Invalid layout.")
 
@@ -65,10 +65,26 @@ def draw_weighted_graph(toDraw: WeightedGraph, layout="circo"):
 
         for i in range(toDraw.vertex_count):
             for j in range(len(toDraw.adjacency_list[i])):
-                G.add_edge(i, toDraw.adjacency_list[i][j].vertex, weight=toDraw.adjacency_list[i][j].weight, label=toDraw.adjacency_list[i][j].weight, fontcolor='red')
-        
+                G.add_edge(i, toDraw.adjacency_list[i][j].vertex, weight=toDraw.adjacency_list[i]
+                           [j].weight, label=toDraw.adjacency_list[i][j].weight, fontcolor='red')
 
         G.layout(prog=layout)
-        G.draw("test.png")
+        G.draw("graph.png")
     else:
         raise ValueError("Invalid layout.")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", "--weighted")
+
+    arguments = parser.parse_args()
+
+    if arguments.weighted:
+        draw_weighted_graph(WeightedGraph.parse(sys.stdin.read()))
+    else:
+        draw_graph(Graph.parse(sys.stdin.read()))
+
+
+if __name__ == "__main__":
+    main()
