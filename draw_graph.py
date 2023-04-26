@@ -14,6 +14,7 @@ def draw_digraph(toDraw: Digraph, layout="circo"):
         G.node_attr['shape'] = 'circle'
         G.node_attr['color'] = 'blue'
         G.edge_attr['arrowsize'] = 0.75
+        G.graph_attr['mindist'] = 0
         G.graph_attr['scale'] = 2
         G.graph_attr['size'] = (2, 2)
 
@@ -37,6 +38,7 @@ def draw_graph(toDraw: Graph, layout="circo"):
         G.node_attr['shape'] = 'circle'
         G.node_attr['color'] = 'blue'
         G.edge_attr['arrowsize'] = 0.75
+        G.graph_attr['mindist'] = 0
         G.graph_attr['scale'] = 2
         G.graph_attr['size'] = (2, 2)
 
@@ -60,6 +62,7 @@ def draw_weighted_graph(toDraw: WeightedGraph, layout="circo"):
         G.node_attr['shape'] = 'circle'
         G.node_attr['color'] = 'blue'
         G.edge_attr['arrowsize'] = 0.75
+        G.graph_attr['mindist'] = 0
         G.graph_attr['scale'] = 2
         G.graph_attr['size'] = (2, 2)
 
@@ -76,7 +79,7 @@ def draw_weighted_graph(toDraw: WeightedGraph, layout="circo"):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-w", "--weighted")
+    parser.add_argument("-w", "--weighted", action="store_true")
 
     arguments = parser.parse_args()
 

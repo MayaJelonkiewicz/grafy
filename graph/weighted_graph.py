@@ -14,7 +14,7 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
         adjacency_list = []
         for line in string.splitlines():
             adjacencies = []
-            for pair in line.split(","):
+            for pair in line.split():
                 vertex, weight = map(int, pair.strip().split(":"))
                 adjacencies.append(IWeightedGraph.Adjacency(vertex, weight))
             adjacency_list.append(adjacencies)

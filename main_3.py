@@ -5,8 +5,7 @@ from graph import WeightedGraph
 
 
 def task1(arguments):
-    print(repr(WeightedGraph.generate_weighted_connected(
-        arguments.n, arguments.l).adjacency_list))
+    print(WeightedGraph.generate_weighted_connected(arguments.n, arguments.l).dump(), end="")
 
 
 def task2(arguments):
@@ -45,7 +44,7 @@ def task4(_):
 
 def task5(_):
     graph = WeightedGraph.parse(sys.stdin.read())
-    print(graph.min_spanning_tree().dump())
+    print(graph.min_spanning_tree().dump(), end="")
 
 
 def main():

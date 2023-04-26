@@ -126,7 +126,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
         output = [[] for j in range(n)]
 
-        edges = [[k, i+1] for i in range(0, n)]
+        edges = [[k, i] for i in range(0, n)]
         random.shuffle(edges)
 
         while edges[0][0] != 0:
@@ -139,8 +139,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
                 v2 = edges[i+1][1]
 
-                output[v-1].append(v2)
-                output[v2-1].append(v)
+                output[v].append(v2)
+                output[v2].append(v)
 
             edges.sort(reverse=True)
 
@@ -384,8 +384,6 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                         edgesFromx1 = output[x1].nonzero()[0]
                         edgesFromx2 = output[x2].nonzero()[0]
                         y1, y2 = output[:, j].nonzero()[0]
-                        edgesfromx = np.unique(
-                            np.concatenate((edgesFromx1, edgesFromx2)))
                         if (_check_if_can_swap(y1, y2, edgesFromx1, edgesFromx2)
                            or
                            _check_if_can_swap(y2, y1, edgesFromx1, edgesFromx2)):
