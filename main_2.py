@@ -36,7 +36,7 @@ def task4(arguments):
     graph = Graph.euler_graph_generator(arguments.n, arguments.k)
     cycle = graph.euler_cycle_finder()
     print(" ".join(map(str, cycle)))
-    print(graph.dump(arguments.output_representation))
+    print(graph.dump(arguments.output_representation), end="")
 
 
 def task5(arguments):

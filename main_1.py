@@ -52,7 +52,7 @@ def main():
     subparser_2 = subparsers.add_parser("2")
     subparser_2.add_argument("-i", "--input-representation",
                              choices=["adjlist", "adjmatrix", "incmatrix"], default="adjlist")
-    subparser_2.add_argument("-o", "--output-filename", default="output.png")
+    subparser_2.add_argument("-o", "--output-filename", default="graph.png")
 
     subparser_3 = subparsers.add_parser("3")
     subparser_3_subparsers = subparser_3.add_subparsers(
@@ -62,13 +62,13 @@ def main():
     subparser_3_gnl.add_argument("n", type=int)
     subparser_3_gnl.add_argument("l", type=int)
     subparser_3_gnl.add_argument(
-        "-o", "--output-representation", required=True)
+        "-o", "--output-representation", default="adjlist")
 
     subparser_3_gnp = subparser_3_subparsers.add_parser("gnp")
     subparser_3_gnp.add_argument("n", type=int)
     subparser_3_gnp.add_argument("p", type=float)
     subparser_3_gnp.add_argument(
-        "-o", "--output-representation", required=True)
+        "-o", "--output-representation", default="adjlist")
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)

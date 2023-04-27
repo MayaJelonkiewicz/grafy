@@ -84,9 +84,9 @@ def main():
     arguments = parser.parse_args()
 
     if arguments.weighted:
-        draw_weighted_graph(WeightedGraph.parse(sys.stdin.read()))
+        draw_weighted_graph(WeightedGraph.parse(sys.stdin.read()), "dot")
     else:
-        draw_graph(Graph.parse(sys.stdin.read()))
+        draw_graph(Graph.parse(sys.stdin.read()), "dot")
 
 
 if __name__ == "__main__":
