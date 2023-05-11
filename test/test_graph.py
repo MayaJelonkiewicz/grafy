@@ -21,7 +21,7 @@ class GraphTestCase(TestCase):
         for cycle in itertools.permutations(range(graph.vertex_count)):
             cycle = [*cycle, cycle[0]]
             # check if all relevant edges exist
-            if all(b in graph.adjacency_list[a] for a, b in zip(cycle, cycle[1:])):
+            if all(a in graph.iter_adjacent(b) for a, b in zip(cycle, cycle[1:])):
                 yield [v for v in cycle][:-1]
 
     @staticmethod
@@ -38,14 +38,13 @@ class GraphTestCase(TestCase):
     def generate_all_graphs_with_vertex_count(vertex_count: int) -> Iterable[Graph]:
         for edge_sequence in itertools.product([False, True],
                                                repeat=vertex_count * (vertex_count - 1) // 2):
-            adjacency_list = [[] for _ in range(vertex_count)]
+            graph = Graph.empty(vertex_count)
             edge_count_iterator = iter(edge_sequence)
             for a in range(vertex_count):
                 for b in range(a + 1, vertex_count):
                     if next(edge_count_iterator):
-                        adjacency_list[a].append(b)
-                        adjacency_list[b].append(a)
-            yield Graph(adjacency_list)
+                        graph.add_edge(a, b)
+            yield graph
 
     def test_parse_with_representation(self):
         representations = ["adjlist", "adjmatrix", "incmatrix"]
@@ -163,7 +162,7 @@ class GraphTestCase(TestCase):
         for _ in range(1000):
             vertex_count = random.randrange(1, 50)
             edge_count = random.randrange(vertex_count * 4)
-            adjacency_list = [[] for _ in range(vertex_count)]
+            graph = Graph.empty(vertex_count)
 
             # the value at index i is the identifier of the component that vertex belongs to.
             # at the start, each vertex is in its unique component, but they get merged as new
@@ -174,11 +173,10 @@ class GraphTestCase(TestCase):
             for _ in range(edge_count):
                 vertex_0 = random.randrange(vertex_count)
                 vertex_1 = random.randrange(vertex_count)
-                if vertex_1 in adjacency_list[vertex_0]:
+                if vertex_0 in graph.iter_adjacent(vertex_1):
                     continue
 
-                adjacency_list[vertex_0].append(vertex_1)
-                adjacency_list[vertex_1].append(vertex_0)
+                graph.add_edge(vertex_0, vertex_1)
 
                 new_component_id = vertex_component_ids[vertex_0]
                 old_component_id = vertex_component_ids[vertex_1]
@@ -195,8 +193,7 @@ class GraphTestCase(TestCase):
             # use set-like type because order is irrelevant
             # use frozenset specifically because it is hashable
             self.assertEqual(
-                frozenset(map(frozenset, Graph(
-                    adjacency_list).find_components())),
+                frozenset(map(frozenset, graph.find_components())),
                 frozenset(map(frozenset, components))
             )
 

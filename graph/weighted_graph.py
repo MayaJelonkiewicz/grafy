@@ -33,11 +33,11 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
             comp_list = graph.find_components()
             comp_list.sort(key=len)
 
-            adj_mat = Graph._adjacency_list_to_adjacency_matrix(
+            adj_mat = Graph.adjacency_list_to_adjacency_matrix(
                 graph.adjacency_list)
 
             while len(comp_list) > 1:
-                adj_mat = Graph._adjacency_list_to_adjacency_matrix(
+                adj_mat = Graph.adjacency_list_to_adjacency_matrix(
                     graph.adjacency_list)
                 comp_list.sort(key=len)
                 to_add = comp_list[0]
@@ -64,7 +64,7 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
 
                     prev = v2
 
-                    graph.adjacency_list = Graph._adjacency_matrix_to_adjacency_list(
+                    graph.adjacency_list = Graph.adjacency_matrix_to_adjacency_list(
                         adj_mat)
                     comp_list = graph.find_components()
 

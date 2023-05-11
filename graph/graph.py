@@ -36,11 +36,9 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             case "adjlist":
                 adjacency_list = data
             case "adjmatrix":
-                adjacency_list = Graph._adjacency_matrix_to_adjacency_list(
-                    data)
+                adjacency_list = cls.adjacency_matrix_to_adjacency_list(data)
             case "incmatrix":
-                adjacency_list = Graph._incidence_matrix_to_adjacency_list(
-                    data)
+                adjacency_list = cls.incidence_matrix_to_adjacency_list(data)
 
         return cls(adjacency_list)
 
@@ -50,10 +48,10 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             case "adjlist":
                 data = self.adjacency_list
             case "adjmatrix":
-                data = Graph._adjacency_list_to_adjacency_matrix(
+                data = Graph.adjacency_list_to_adjacency_matrix(
                     self.adjacency_list)
             case "incmatrix":
-                data = Graph._adjacency_list_to_incidence_matrix(
+                data = Graph.adjacency_list_to_incidence_matrix(
                     self.adjacency_list)
 
         string = ""
@@ -89,7 +87,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                 for j in range(i+1, n):
                     output[i][j] = output[j][i] = 1
 
-        return cls(cls._adjacency_matrix_to_adjacency_list(output))
+        return cls(cls.adjacency_matrix_to_adjacency_list(output))
 
     @classmethod
     def generate_with_gnp_model(cls, n: int, p: float) -> Self:
@@ -116,7 +114,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                     else:
                         break
 
-        return cls(cls._adjacency_matrix_to_adjacency_list(output))
+        return cls(cls.adjacency_matrix_to_adjacency_list(output))
 
     @classmethod
     def generate_random_regular(cls, n, k) -> Self:
@@ -155,7 +153,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         return cls(output)
 
     @staticmethod
-    def _adjacency_matrix_to_adjacency_list(input: list[list[int]]) -> list[list[int]]:
+    def adjacency_matrix_to_adjacency_list(input: list[list[int]]) -> list[list[int]]:
         """transform 'adjacency matrix' to 'adjacency list'"""
         output = []
         for i in input:
@@ -167,7 +165,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         return output
 
     @staticmethod
-    def _adjacency_list_to_adjacency_matrix(input: list[list[int]]) -> list[list[int]]:
+    def adjacency_list_to_adjacency_matrix(input: list[list[int]]) -> list[list[int]]:
         """transform 'adjacency list' to 'adjacency matrix'"""
         node_amount = len(input)
         output = [[0 for i in range(node_amount)] for j in range(node_amount)]
@@ -177,7 +175,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         return output
 
     @staticmethod
-    def _adjacency_list_to_incidence_matrix(input: list[list[int]]) -> list[list[int]]:
+    def adjacency_list_to_incidence_matrix(input: list[list[int]]) -> list[list[int]]:
         """transform 'adjacency list' to 'incidence matrix'"""
         m = len(input)
         n = 0
@@ -197,7 +195,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         return output
 
     @staticmethod
-    def _incidence_matrix_to_adjacency_list(input: list[list[int]]) -> list[list[int]]:
+    def incidence_matrix_to_adjacency_list(input: list[list[int]]) -> list[list[int]]:
         """transform 'incidence matrix' to 'adjacency list'"""
         m = len(input)
         n = len(input[0])
@@ -280,8 +278,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
         # gets rearranged in the same way
         vertex_indices = list(range(len(sequence)))
 
-        # adjacency list, to be built up during the upcoming loop
-        adjacency_list = [[] for _ in sequence]
+        # resulting graph, to be built up during the upcoming loop
+        graph = cls.empty(len(sequence))
 
         # this loop involves adding edges until all vertices have the target
         # number of incident edges.
@@ -292,7 +290,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
             if all(d == 0 for d in remaining_edges):
                 # all vertices have the correct number of edges
-                return cls(adjacency_list)
+                return graph
 
             if min(remaining_edges) < 0:
                 # one of the vertices has more incident edges than its
@@ -304,8 +302,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             # edges
             for index in range(1, remaining_edges[0] + 1):
                 remaining_edges[index] -= 1
-                adjacency_list[vertex_indices[0]].append(vertex_indices[index])
-                adjacency_list[vertex_indices[index]].append(vertex_indices[0])
+                graph.add_edge(vertex_indices[0], vertex_indices[index])
             remaining_edges[0] = 0
 
     def find_components(self):
@@ -373,12 +370,12 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                     len(output[y2, [edgesFromx2]].nonzero()[0]) == 0)
 
         output = np.array(
-            Graph._adjacency_list_to_incidence_matrix(self.adjacency_list))
+            Graph.adjacency_list_to_incidence_matrix(self.adjacency_list))
         node_n = len(output)
         if node_n*(node_n-1)/2 - 2 < len(output[0]):
             warnings.warn(
                 "this graph have no free space for randomizing edge", RuntimeWarning)
-            return Graph(Graph._incidence_matrix_to_adjacency_list(output.tolist()))
+            return Graph(Graph.incidence_matrix_to_adjacency_list(output.tolist()))
 
         for _ in range(rand_it):
             possibilities = list()
@@ -417,7 +414,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                 output[y1, c2] = 0
                 output[y1, c1] = 1
 
-        return Graph(Graph._incidence_matrix_to_adjacency_list(output.tolist()))
+        return Graph(Graph.incidence_matrix_to_adjacency_list(output.tolist()))
 
     @classmethod
     def euler_graph_generator(cls, node: int, edge: int, is_connected: bool = True) -> Self:
