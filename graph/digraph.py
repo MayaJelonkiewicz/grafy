@@ -25,7 +25,57 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
                     output[i].append(j)
 
         return cls(output)
-    
+
+    def transpose(self) -> Self:
+        edges = [(vertex_a, vertex_b) for vertex_a in range(
+            self.vertex_count) for vertex_b in self.iter_adjacent(vertex_a)]
+        transposed_graph = Digraph.empty(self.vertex_count)
+        for edge in edges:
+            transposed_graph.add_edge(edge[1], edge[0])
+        return transposed_graph
+
+    def find_strongly_connected_components(self) -> set[frozenset[int]]:
+        # the order needs to be tracked, but a seperate set object is also
+        # used to have O(1) lookup
+        visited_vertices = set()
+        visited_vertices_in_order = []
+
+        def visit_recursively(vertex: int):
+            if vertex in visited_vertices:
+                return
+            visited_vertices.add(vertex)
+
+            for adjacent_vertex in self.iter_adjacent(vertex):
+                visit_recursively(adjacent_vertex)
+
+            visited_vertices_in_order.append(vertex)
+
+        for start_vertex in range(self.vertex_count):
+            visit_recursively(start_vertex)
+
+        transposed_graph = self.transpose()
+        visited_vertices = set()
+        components = set()
+
+        def get_components_recursively(vertex: int, component: set | None = None):
+            if vertex in visited_vertices:
+                return component
+            visited_vertices.add(vertex)
+
+            if component is None:
+                component = set()
+
+            component.add(vertex)
+            for adjacent_vertex in transposed_graph.iter_adjacent(vertex):
+                get_components_recursively(adjacent_vertex, component)
+            return component
+
+        for start_vertex in reversed(visited_vertices_in_order):
+            component = get_components_recursively(start_vertex)
+            if component is not None:
+                components.add(frozenset(component))
+        return components
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Digraph):
             return False
