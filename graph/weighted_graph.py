@@ -8,23 +8,17 @@ from graph import Graph, IUndirectedGraph, IWeightedGraph
 class WeightedGraph(IUndirectedGraph, IWeightedGraph):
     """A weighted graph stored as an adjacency list"""
 
-    @classmethod
-    def parse(cls, string: str) -> Self:
-        """Parse raw string data into a WeightedGraph object"""
-        adjacency_list = []
-        for line in string.splitlines():
-            adjacencies = []
-            for pair in line.split():
-                vertex, weight = map(int, pair.strip().split(":"))
-                adjacencies.append(IWeightedGraph.Adjacency(vertex, weight))
-            adjacency_list.append(adjacencies)
-        return cls(adjacency_list)
+    def add_edge(self, vertex_a, vertex_b, weight):
+        self.adjacency_list[vertex_a].append(
+            IWeightedGraph.Adjacency(vertex_b, weight))
+        self.adjacency_list[vertex_b].append(
+            IWeightedGraph.Adjacency(vertex_a, weight))
 
-    def dump(self) -> str:
-        string = ""
-        for row in self.adjacency_list:
-            string += " ".join(map(lambda a: f"{a.vertex}:{a.weight}", row)) + "\n"
-        return string
+    def remove_edge(self, vertex_a, vertex_b):
+        self.adjacency_list[vertex_a] = [
+            a for a in self.adjacency_list[vertex_a] if a.vertex != vertex_b]
+        self.adjacency_list[vertex_b] = [
+            a for a in self.adjacency_list[vertex_b] if a.vertex != vertex_a]
 
     @classmethod
     def generate_weighted_connected(cls, n: int, l: int) -> Self:
@@ -35,14 +29,16 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
 
         if l >= n-1:
             graph = Graph.generate_with_gnl_model(n, l)
-            
+
             comp_list = graph.find_components()
             comp_list.sort(key=len)
 
-            adj_mat = Graph._adjacency_list_to_adjacency_matrix(graph.adjacency_list)
+            adj_mat = Graph._adjacency_list_to_adjacency_matrix(
+                graph.adjacency_list)
 
             while len(comp_list) > 1:
-                adj_mat = Graph._adjacency_list_to_adjacency_matrix(graph.adjacency_list)
+                adj_mat = Graph._adjacency_list_to_adjacency_matrix(
+                    graph.adjacency_list)
                 comp_list.sort(key=len)
                 to_add = comp_list[0]
                 main_comp = comp_list[-1]
@@ -68,7 +64,8 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
 
                     prev = v2
 
-                    graph.adjacency_list = Graph._adjacency_matrix_to_adjacency_list(adj_mat)
+                    graph.adjacency_list = Graph._adjacency_matrix_to_adjacency_list(
+                        adj_mat)
                     comp_list = graph.find_components()
 
                     main_comp.remove(prev)
@@ -80,7 +77,7 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
                         main_comp = comp_list[-1]
 
             adjlist = graph.adjacency_list
-            
+
             for i in range(n):
                 for j in adjlist[i]:
                     weight = randrange(1, 10 + 1)
@@ -242,6 +239,15 @@ class WeightedGraph(IUndirectedGraph, IWeightedGraph):
                 result[y_v].append(IWeightedGraph.Adjacency(x_v, weight))
                 union(x_v, y_v, parent, rank)
         return WeightedGraph(result)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, WeightedGraph):
+            return False
+
+        if self.adjacency_list != other.adjacency_list:
+            return False
+
+        return True
 
 
 if __name__ == "__main__":

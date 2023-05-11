@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Literal, Self
+from typing import Iterator, Literal, Self
 import random
 import warnings
 import numpy as np
@@ -10,9 +10,19 @@ from graph import IUndirectedGraph, IUnweightedGraph
 class Graph(IUndirectedGraph, IUnweightedGraph):
     """A graph with a given representation"""
 
-    @property
-    def vertex_degrees(self) -> list[int]:
-        return [len(inner_list) for inner_list in self.adjacency_list]
+    def iter_edges(self) -> Iterator[tuple[int, int]]:
+        for first_vertex, second_vertices in enumerate(self.adjacency_list, start=1):
+            for second_vertex in second_vertices:
+                if first_vertex < second_vertex:
+                    yield (first_vertex, second_vertex)
+
+    def add_edge(self, vertex_a, vertex_b):
+        self.adjacency_list[vertex_a].append(vertex_b)
+        self.adjacency_list[vertex_b].append(vertex_a)
+
+    def remove_edge(self, vertex_a, vertex_b):
+        self.adjacency_list[vertex_a].remove(vertex_b)
+        self.adjacency_list[vertex_b].remove(vertex_a)
 
     @classmethod
     def parse_with_representation(
@@ -34,7 +44,7 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
 
         return cls(adjacency_list)
 
-    def dump(self, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> str:
+    def dump_with_representation(self, representation: Literal["adjlist", "adjmatrix", "incmatrix"]) -> str:
         data = []
         match representation:
             case "adjlist":
@@ -386,7 +396,8 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
                             possibilities.append((i, j))
 
             if (not possibilities):
-                warnings.warn('couldn\'t find any possible swap', RuntimeWarning)
+                warnings.warn('couldn\'t find any possible swap',
+                              RuntimeWarning)
                 break
             c1, c2 = random.choice(possibilities)
             x1, x2 = output[:, c1].nonzero()[0]
@@ -504,12 +515,6 @@ class Graph(IUndirectedGraph, IUnweightedGraph):
             return False
 
         return True
-
-    def __repr__(self):
-        return f"Graph({self.adjacency_list})"
-
-    def __hash__(self):
-        return hash(tuple(frozenset(inner_list) for inner_list in self.adjacency_list))
 
 
 if __name__ == "__main__":

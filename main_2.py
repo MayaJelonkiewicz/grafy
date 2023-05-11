@@ -9,7 +9,7 @@ def task1(arguments):
     if Graph.check_if_sequence_is_graphic(sequence):
         output_graph = Graph.from_graphic_sequence(sequence)
         assert output_graph is not None
-        print(output_graph.dump(arguments.output_representation), end="")
+        print(output_graph.dump_with_representation(arguments.output_representation), end="")
     else:
         print("-")
 
@@ -21,7 +21,7 @@ def task2(arguments):
         assert graph_from_sequence is not None
         output_graph = graph_from_sequence.randomize_edges(
             graph_from_sequence.edge_count)
-        print(output_graph.dump(arguments.output_representation), end="")
+        print(output_graph.dump_with_representation(arguments.output_representation), end="")
     else:
         print("-")
 
@@ -36,12 +36,12 @@ def task4(arguments):
     graph = Graph.euler_graph_generator(arguments.n, arguments.k)
     cycle = graph.euler_cycle_finder()
     print(" ".join(map(str, cycle)))
-    print(graph.dump(arguments.output_representation), end="")
+    print(graph.dump_with_representation(arguments.output_representation), end="")
 
 
 def task5(arguments):
     output_graph = Graph.generate_random_regular(arguments.n, arguments.k)
-    print(output_graph.dump(arguments.output_representation), end="")
+    print(output_graph.dump_with_representation(arguments.output_representation), end="")
 
 
 def task6(arguments):

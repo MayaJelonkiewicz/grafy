@@ -2,7 +2,7 @@ import argparse
 from graph import Digraph
 
 def task1(arguments):
-    print(Digraph.generate_with_gnp_model(arguments.n, arguments.p).data_to_string())
+    print(Digraph.generate_with_gnp_model(arguments.n, arguments.p).dump())
 
 def main():
     parser = argparse.ArgumentParser()

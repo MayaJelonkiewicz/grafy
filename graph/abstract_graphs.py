@@ -10,6 +10,10 @@ class IGraph(ABC):
     def __init__(self, adjacency_list: list[list[Any]]):
         self.adjacency_list = adjacency_list
 
+    @classmethod
+    def empty(cls, vertex_count: int) -> Self:
+        return cls([[] for _ in range(vertex_count)])
+
     @property
     def vertex_count(self) -> int:
         return len(self.adjacency_list)
@@ -19,10 +23,24 @@ class IGraph(ABC):
     def edge_count(self) -> int:
         pass
 
+    @abstractmethod
+    def iter_adjacent(self, index) -> Iterator[Any]:
+        return iter(self.adjacency_list[index])
+
     @classmethod
     @abstractmethod
     def parse(cls, string) -> Self:
         pass
+
+    @abstractmethod
+    def dump(self) -> str:
+        pass
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.adjacency_list})"
+
+    def __hash__(self):
+        return hash(tuple(frozenset(inner_list) for inner_list in self.adjacency_list))
 
 
 class IUndirectedGraph(IGraph):
@@ -32,6 +50,10 @@ class IUndirectedGraph(IGraph):
     def edge_count(self) -> int:
         return sum(map(len, self.adjacency_list)) // 2
 
+    @property
+    def vertex_degrees(self) -> list[int]:
+        return [len(inner_list) for inner_list in self.adjacency_list]
+
 
 class IDirectedGraph(IGraph):
     """Abstract type for all directed graphs"""
@@ -39,10 +61,6 @@ class IDirectedGraph(IGraph):
     @property
     def edge_count(self) -> int:
         return sum(map(len, self.adjacency_list))
-
-    def iter_edges(self) -> Iterator[int]:
-        for row in self.adjacency_list:
-            yield from row
 
 
 class IUnweightedGraph(IGraph):
@@ -52,17 +70,18 @@ class IUnweightedGraph(IGraph):
         self.adjacency_list = adjacency_list
 
     @classmethod
-    def parse(cls, string: str):
-        """Parse raw string data into a Digraph object"""
+    def parse(cls, string: str) -> Self:
+        """Parse raw string data into an IUnweightedGraph object"""
         return cls([[int(value) for value in line.split()] for line in string.splitlines()])
 
-    def iter_edges(self) -> Iterator[tuple[int, int]]:
-        for first_vertex, second_vertices in enumerate(self.adjacency_list, start=1):
-            for second_vertex in second_vertices:
-                yield (first_vertex, second_vertex)
+    def iter_adjacent(self, index) -> Iterator[int]:
+        return iter(self.adjacency_list[index])
 
-    def iter_edges_from(self, index) -> Iterator[int]:
-        return self.adjacency_list[index]
+    def dump(self) -> str:
+        string = ""
+        for row in self.adjacency_list:
+            string += " ".join(map(lambda v: f"{v}", row)) + "\n"
+        return string
 
 
 class IWeightedGraph(IGraph):
@@ -80,3 +99,25 @@ class IWeightedGraph(IGraph):
 
     def __init__(self, adjacency_list: list[list[Adjacency]]):
         self.adjacency_list = adjacency_list
+
+    def iter_adjacent(self, index) -> Iterator[Adjacency]:
+        return iter(self.adjacency_list[index])
+
+    @classmethod
+    def parse(cls, string: str) -> Self:
+        """Parse raw string data into an IWeightedGraph object"""
+        adjacency_list = []
+        for line in string.splitlines():
+            adjacencies = []
+            for pair in line.split(","):
+                vertex, weight = map(int, pair.strip().split(":"))
+                adjacencies.append(IWeightedGraph.Adjacency(vertex, weight))
+            adjacency_list.append(adjacencies)
+        return cls(adjacency_list)
+
+    def dump(self) -> str:
+        string = ""
+        for row in self.adjacency_list:
+            string += " ".join(
+                map(lambda a: f"{a.vertex}:{a.weight}", row)) + "\n"
+        return string

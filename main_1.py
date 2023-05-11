@@ -10,7 +10,7 @@ from graph import Graph
 def task1(arguments):
     graph = Graph.parse_with_representation(
         sys.stdin.read(), arguments.input_representation)
-    print(graph.dump(arguments.output_representation), end="")
+    print(graph.dump_with_representation(arguments.output_representation), end="")
 
 
 def task2(arguments):
@@ -32,10 +32,10 @@ def task2(arguments):
 
 def task3(arguments):
     if arguments.model == "gnl":
-        print(Graph.generate_with_gnl_model(arguments.n, arguments.l).dump(
+        print(Graph.generate_with_gnl_model(arguments.n, arguments.l).dump_with_representation(
             arguments.output_representation), end="")
     elif arguments.model == "gnp":
-        print(Graph.generate_with_gnp_model(arguments.n, arguments.p).dump(
+        print(Graph.generate_with_gnp_model(arguments.n, arguments.p).dump_with_representation(
             arguments.output_representation), end="")
 
 

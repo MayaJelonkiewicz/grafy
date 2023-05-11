@@ -71,7 +71,7 @@ class GraphTestCase(TestCase):
             with open(f"test/resources/graph_representations/{representation}.txt", "r",
                       encoding="utf-8") as file:
                 a = file.read()
-                self.assertEqual(graph.dump(representation),  # type: ignore
+                self.assertEqual(graph.dump_with_representation(representation),  # type: ignore
                                  a)
 
     def test_gnl_generation_edge_count(self):

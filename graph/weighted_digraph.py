@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Self
 from random import randrange
 
 from graph import IUndirectedGraph, IWeightedGraph
@@ -8,17 +7,13 @@ from graph import IUndirectedGraph, IWeightedGraph
 class WeightedDigraph(IUndirectedGraph, IWeightedGraph):
     """A weighted directed graph stored as an adjacency list"""
 
-    @classmethod
-    def parse(cls, string: str) -> Self:
-        """Parse raw string data into a WeightedDigraph object"""
-        adjacency_list = []
-        for line in string.splitlines():
-            adjacencies = []
-            for pair in line.split(","):
-                vertex, weight = map(int, pair.strip().split(":"))
-                adjacencies.append(IWeightedGraph.Adjacency(vertex, weight))
-            adjacency_list.append(adjacencies)
-        return cls(adjacency_list)
+    def add_edge(self, vertex_a, vertex_b, weight):
+        self.adjacency_list[vertex_a].append(
+            IWeightedGraph.Adjacency(vertex_b, weight))
+
+    def remove_edge(self, vertex_a, vertex_b):
+        self.adjacency_list[vertex_a] = [
+            a for a in self.adjacency_list[vertex_a] if a.vertex != vertex_b]
 
     @classmethod
     def generate_weighted_digraph(cls, digraph, lower, upper):
@@ -31,6 +26,15 @@ class WeightedDigraph(IUndirectedGraph, IWeightedGraph):
                     j, randrange(lower, upper)))
             adjacency_list.append(adjacencies)
         return cls(adjacency_list)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, WeightedDigraph):
+            return False
+
+        if self.adjacency_list != other.adjacency_list:
+            return False
+
+        return True
 
 
 if __name__ == "__main__":
