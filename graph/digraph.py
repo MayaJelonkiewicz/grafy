@@ -75,7 +75,64 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
             if component is not None:
                 components.add(frozenset(component))
         return components
+    
+    def Bellman_Ford(n: int, p: float, v: int) -> tuple[bool, list]:
+        """Bellman-Ford's algorithm. Function prints costs and path from start vertex to every vertex in graph. 
+        It also checks if graph contains negative cycle, then function returns False. Range of edges weights was modified from (-5,10)
+        to (-2,10) because with previous range graph often contained negative cycle"""
+        index=0
+        G=Digraph.generate_with_gnp_model(n,p)
+        res=G.find_strongly_connected_components()
 
+        while(len(res)>1 and index<30):
+            index+=1
+            G=Digraph.generate_with_gnp_model(n,p)
+            res=G.find_strongly_connected_components()
+
+        adjacency_list=[]
+        for id in range(len(G.adjacency_list)):
+            adjacency_list.append([])
+            for elem in range(len(G.adjacency_list[id])):
+                weight=random.randint(-2,10)
+                adjacency_list[id].append((G.adjacency_list[id][elem],weight))
+        d = []
+        p = []
+        for i in range(n):
+            d.append(1e7)
+            p.append(-1)
+        d[v] = 0
+        def printResult(pList,dList):
+            tab=[]
+            for i in range(len(dList)):
+                print (dList[i] ,end=" ")
+                x=i
+                while(x!=-1):
+                    x=pList[x]
+                    if(x!=-1):
+                        tab.append(x)
+                tab.insert(0,i)
+                print(tab[::-1])
+                tab=[]
+                
+        for j in range(1, n):
+            test = True
+            for x in range(n):
+                for k in range(len(adjacency_list[x])):
+                    y = adjacency_list[x][k][0]
+                    if d[y] > d[x]+adjacency_list[x][k][1]:
+                        test = False
+                        d[y] = d[x]+adjacency_list[x][k][1]
+                        p[y] = x
+            if test == True:
+                printResult(p,d)
+                return True, d
+        for x in range(n):
+            for g in range(len(adjacency_list[x])):
+                y = adjacency_list[x][g][0]
+                if d[y] > d[x]+adjacency_list[x][g][1]:
+                    return False, d
+        printResult(p,d)
+        return True, d
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Digraph):
             return False
