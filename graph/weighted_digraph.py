@@ -37,7 +37,7 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
 
         return True
 
-    def bellman_ford(self, v: int) -> tuple[bool, list]:
+    def bellman_ford(self, v: int, verbose: bool = False) -> tuple[bool, list]:
         """Bellman-Ford's algorithm. 
         Function prints costs and path from start vertex to every vertex in graph. 
         It also checks if graph contains negative cycle, then function returns False."""
@@ -47,19 +47,6 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
             d.append(float('inf'))
             p.append(-1)
         d[v] = 0
-
-        # def print_result(plist, dlist):
-        #     tab = []
-        #     for i in range(len(dlist)):
-        #         print(dlist[i], end=" ")
-        #         x = i
-        #         while x != -1:
-        #             x = plist[x]
-        #             if x != -1:
-        #                 tab.append(x)
-        #         tab.insert(0, i)
-        #         print(tab[::-1])
-        #         tab = []
 
         for _ in range(1, self.vertex_count):
             test = True
@@ -71,38 +58,28 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
                         d[y] = d[x]+self.adjacency_list[x][k].weight
                         p[y] = x
             if test is True:
-                # print_result(p, d)
+                if verbose:
+                    self.__print_result(p, d)
                 return True, d
         for x in range(self.vertex_count):
             for g in range(len(self.adjacency_list[x])):
                 y = self.adjacency_list[x][g].vertex
                 if d[y] > d[x]+self.adjacency_list[x][g].weight:
                     return False, d
-        # print_result(p, d)
+        if verbose:
+            self.__print_result(p, d)
         return True, d
 
-    def dijkstra(self, v: int) -> list:
+    def dijkstra(self, v: int, verbose: bool = False) -> list:
         """Dijkstra's algorithm. 
-        Function prints costs and path from start vertex to every vertex in graph."""
+        Function prints costs and path from start vertex to every vertex in graph.
+        """
         d = []
         p = []
         for _ in range(self.vertex_count):
             d.append(float('inf'))
             p.append(-1)
         d[v] = 0
-
-        # def print_result(plist, dlist):
-        #     tab = []
-        #     for i in range(len(dlist)):
-        #         print(dlist[i], end=" ")
-        #         x = i
-        #         while x != -1:
-        #             x = plist[x]
-        #             if x != -1:
-        #                 tab.append(x)
-        #         tab.insert(0, i)
-        #         print(tab[::-1])
-        #         tab = []
 
         queue = [v]
         while queue:
@@ -113,10 +90,11 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
                     d[y] = d[x]+self.adjacency_list[x][k].weight
                     p[y] = x
                     queue.append(y)
-        # print_result(p, d)
+        if verbose:
+            self.__print_result(p, d)
         return d
 
-    def johnson(self):
+    def johnson(self, verbose: bool = False):
         """algorithm for finding all pairs shortest path"""
 
         # adding a new vertex to the graph
@@ -146,9 +124,24 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
                 if dijkstra_d[j] != float('inf'):
                     dijkstra_d[j] = dijkstra_d[j] + bellf_d[j] - bellf_d[i]
             # printing the results
-            print(f"Vertex {i}: {dijkstra_d}")
+            if verbose:
+                print(f"Vertex {i}: {dijkstra_d}")
         # returning the reweighted graph
         return new_graph
+
+    @staticmethod
+    def __print_result(plist, dlist):
+        tab = []
+        for i in range(len(dlist)):
+            print(dlist[i], end=" ")
+            x = i
+            while x != -1:
+                x = plist[x]
+                if x != -1:
+                    tab.append(x)
+            tab.insert(0, i)
+            print(tab[::-1])
+            tab = []
 
 
 if __name__ == "__main__":
