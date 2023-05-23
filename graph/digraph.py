@@ -76,6 +76,7 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
                 components.add(frozenset(component))
         return components
     
+    @staticmethod
     def Bellman_Ford(n: int, p: float, v: int) -> tuple[bool, list]:
         """Bellman-Ford's algorithm. Function prints costs and path from start vertex to every vertex in graph. 
         It also checks if graph contains negative cycle, then function returns False. Range of edges weights was modified from (-5,10)
