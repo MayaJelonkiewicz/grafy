@@ -1,5 +1,6 @@
 from __future__ import annotations
 import random
+import numpy as np
 from typing import Self
 
 from graph import IDirectedGraph, IUnweightedGraph
@@ -140,6 +141,74 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
                     return False, d
         printResult(p,d)
         return True, d
+
+    def PageRank_Random(self, N: int):
+        """PageRank algorithm with random walk"""   
+        visits = np.zeros(self.vertex_count)
+        choice = random.randint(0, self.vertex_count-1)
+        d = 0.15
+
+        for _ in range(N):
+            rand = random.random()
+
+            if rand < (1 - d):
+                choice = self.adjacency_list[choice][random.randint(0, len(self.adjacency_list[choice]) - 1)]
+                visits[choice] += 1
+            else:
+                choice = random.randint(0, self.vertex_count - 1)
+                visits[choice] += 1
+
+        visits = visits / N
+        res = {}
+        for i in range(len(visits)):
+            res[f'{chr(i + ord("A"))}'] = round(visits[i], 6)
+
+        return sorted(res.items(), key=lambda x:x[1], reverse=True)
+
+    def PageRank_PowerMethod(self: Digraph, N: int, eps=1e-8):
+        """PageRank algorithm using power method"""
+
+        adj_mat = [[0 for _ in range(self.vertex_count)] for _ in range(self.vertex_count)]
+        d = 0.15
+
+        for i in range(self.vertex_count):
+            for j in range(len(self.adjacency_list[i])):
+                v = self.adjacency_list[i][j]
+                adj_mat[i][v] = 1
+
+        v_degrees = [len(self.adjacency_list[i]) for i in range(self.vertex_count)]
+
+        P = [[0 for _ in range(self.vertex_count)] for _ in range(self.vertex_count)]
+        
+        p0 = [ 1. / self.vertex_count for _ in range(self.vertex_count)]
+        p0_next = []
+
+        for i in range(len(adj_mat)):
+            for j in range(len(adj_mat[i])):
+                P[i][j] = (1 - d)*(adj_mat[i][j]/v_degrees[i]) + (d / self.vertex_count)
+
+        # print(P)
+        N=10
+        for i in range(N):
+            if i != 0: 
+                p0 = p0_next
+
+            p0_next = np.dot(p0, P)
+
+            sub = np.subtract(p0, p0_next)
+
+            check = np.sqrt(sum(sub**2))
+
+            if check < eps:
+                break
+            
+
+        res = {}
+        for i in range(len(p0_next)):
+            res[f'{chr(i + ord("A"))}'] = round(p0_next[i], 6)
+
+        return sorted(res.items(), key=lambda x:x[1], reverse=True) 
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Digraph):
             return False
