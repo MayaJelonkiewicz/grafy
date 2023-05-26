@@ -1,7 +1,8 @@
 from __future__ import annotations
 from random import randrange
 from copy import deepcopy
-
+import networkx as nx
+import matplotlib.pyplot as plt
 from graph import IDirectedGraph, IWeightedGraph
 
 
@@ -128,6 +129,73 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
                 print(f"Vertex {i}: {dijkstra_d}")
         # returning the reweighted graph
         return new_graph
+    
+    def Edmonds_Karp(n: int, s: int, t: int, adjacency_list: list,name:str) -> int:
+        """Edmonds-Karp algorithm, returns maximum flow in digraph."""
+        fmax = 0
+        F = [[0 for i in range(n)] for j in range(n)]
+        C = [[0 for i in range(n)] for j in range(n)]
+        P = [0 for i in range(n)]
+        CFP = [0 for i in range(n)]
+        Q = []
+        for i in range(len(adjacency_list)):
+            for j in range(len(adjacency_list[i])):
+                C[i][adjacency_list[i][j][0]] = adjacency_list[i][j][1]
+        while (True):
+            for i in range(n):
+                P[i] = -1
+            P[s] = -2
+            CFP[s] = 1e7
+            while (len(Q) > 0):
+                Q.pop(0)
+            Q.append(s)
+            esc = False
+            while (len(Q) > 0):
+                x = Q.pop(0)
+                for k in range(n):
+                    cp = C[x][k]-F[x][k]
+                    if (cp and (P[k] == -1)):
+                        P[k] = x
+                        if CFP[x] > cp:
+                            CFP[k] = cp
+                        else:
+                            CFP[k] = CFP[x]
+                        if k == t:
+                            fmax = fmax+CFP[t]
+                            l = k
+                            while l != s:
+                                x = P[l]
+                                F[x][l] = F[x][l]+CFP[t]
+                                F[l][x] = F[l][x]-CFP[t]
+                                l = x
+                            esc = True
+                            break
+                        Q.append(k)
+                if esc == True:
+                    break
+            if esc == False:
+                break
+        print("Wartość maksymalnego przepływu to:" + str(fmax))
+
+        G = nx.DiGraph()
+        for i in range(0, n):
+            G.add_node(i)
+        for i in range(len(adjacency_list)):
+            for j in range(len(adjacency_list[i])):
+                if (G.has_edge(adjacency_list[i][j][0], i) == False):
+                    G.add_edge(i, adjacency_list[i][j][0])
+        pos = nx.circular_layout(G)
+        nx.draw(G, pos=pos, with_labels=True)
+        edge_labels = {}
+        for i in range(len(adjacency_list)):
+            for j in range(len(adjacency_list[i])):
+                edge_labels[(i, adjacency_list[i][j][0])] = str(
+                    F[i][adjacency_list[i][j][0]])+"/"+str(adjacency_list[i][j][1])
+        nx.draw_networkx_edge_labels(G, pos, edge_labels)
+
+        plt.savefig(name+".png")
+        plt.clf()
+        return fmax
 
     @staticmethod
     def __print_result(plist, dlist):
