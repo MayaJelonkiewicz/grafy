@@ -89,13 +89,18 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
             index+=1
             G=Digraph.generate_with_gnp_model(n,p)
             res=G.find_strongly_connected_components()
-
+        if(index==30):
+            tab=[]
+            print("Po 30 losowaniach nie udało się uzyskać spójnego grafu. Proszę powtórzyć wywołanie funkcji lub zwiększyć wartość parametru p")
+            return False,tab
         adjacency_list=[]
         for id in range(len(G.adjacency_list)):
             adjacency_list.append([])
             for elem in range(len(G.adjacency_list[id])):
                 weight=random.randint(-2,10)
                 adjacency_list[id].append((G.adjacency_list[id][elem],weight))
+        print("Lista sąsiedztwa wraz z wagami")
+        print(adjacency_list)
         d = []
         p = []
         for i in range(n):
@@ -131,6 +136,7 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
             for g in range(len(adjacency_list[x])):
                 y = adjacency_list[x][g][0]
                 if d[y] > d[x]+adjacency_list[x][g][1]:
+                    print("Graf zawiera ujemny cykl")
                     return False, d
         printResult(p,d)
         return True, d
