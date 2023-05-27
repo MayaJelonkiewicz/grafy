@@ -95,7 +95,7 @@ class IWeightedGraph(IGraph):
             self.weight = weight
 
         def __repr__(self):
-            return f"{self.vertex} {self.weight}"
+            return f"{self.vertex}:{self.weight}"
 
     def __init__(self, adjacency_list: list[list[Adjacency]]):
         self.adjacency_list = adjacency_list
@@ -109,7 +109,7 @@ class IWeightedGraph(IGraph):
         adjacency_list = []
         for line in string.splitlines():
             adjacencies = []
-            for pair in line.split(","):
+            for pair in line.split():
                 vertex, weight = map(int, pair.strip().split(":"))
                 adjacencies.append(IWeightedGraph.Adjacency(vertex, weight))
             adjacency_list.append(adjacencies)
