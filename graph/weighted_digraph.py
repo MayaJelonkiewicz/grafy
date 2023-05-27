@@ -136,8 +136,8 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
         for i in range(len(self.adjacency_list)):
             adjacency_list.append([])
             for j in range(len(self.adjacency_list[i])):
-                elem=str(self.adjacency_list[i][j]).split()
-                adjacency_list[i].append((int(elem[0]),int(elem[1])))
+                elem=self.adjacency_list[i][j]
+                adjacency_list[i].append((elem.vertex,elem.weight))
         n=len(self.adjacency_list)
         fmax = 0
         F = [[0 for i in range(n)] for j in range(n)]
