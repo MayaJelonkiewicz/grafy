@@ -130,8 +130,15 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
         # returning the reweighted graph
         return new_graph
     
-    def Edmonds_Karp(n: int, s: int, t: int, adjacency_list: list,name:str) -> int:
+    def Edmonds_Karp(self, s: int, t: int,name:str) -> int:
         """Edmonds-Karp algorithm, returns maximum flow in digraph."""
+        adjacency_list=[]
+        for i in range(len(self.adjacency_list)):
+            adjacency_list.append([])
+            for j in range(len(self.adjacency_list[i])):
+                elem=str(self.adjacency_list[i][j]).split()
+                adjacency_list[i].append((int(elem[0]),int(elem[1])))
+        n=len(self.adjacency_list)
         fmax = 0
         F = [[0 for i in range(n)] for j in range(n)]
         C = [[0 for i in range(n)] for j in range(n)]
