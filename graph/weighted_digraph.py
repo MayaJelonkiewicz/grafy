@@ -1,9 +1,10 @@
 from __future__ import annotations
 import ctypes
-from random import randrange
+import random
 from copy import deepcopy
 import networkx as nx
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pltfrom
+from typing import Self
 from graph import IDirectedGraph, IWeightedGraph
 
 
@@ -28,7 +29,7 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
             adjacencies = []
             for j in i:
                 adjacencies.append(IWeightedGraph.Adjacency(
-                    j, randrange(lower, upper)))
+                    j, random.randrange(lower, upper)))
             adjacency_list.append(adjacencies)
         return cls(adjacency_list)
 
@@ -206,6 +207,71 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
         plt.savefig(name+".png")
         plt.clf()
         return fmax
+
+    @classmethod
+    def generate_flow_graph(cls, n: int) -> Self:
+        """Generate flow graph
+        with n layers of vertices with n vertices each"""
+        # output = [[] for _ in range(N*N + 2)]
+
+        if n < 2:
+            raise ValueError("N must be greater than 1")
+
+        layers = [[[] for _ in range(random.randint(2, n))] for _ in range(n)]
+
+        counter = 1
+        for i in range(n-1):
+            l = list(range(len(layers[i])))
+            r = list(range(len(layers[i+1])))
+            counter += len(layers[i])
+            while l or r:
+                v1 = None
+                v2 = None
+                if l:
+                    v1 = random.choice(l)
+                    l.remove(v1)
+                else:
+                    v1 = random.randint(0, len(layers[i])-1)
+
+                if r:
+                    v2 = random.choice(r)
+                    r.remove(v2)
+                else:
+                    v2 = random.randint(0, len(layers[i+1])-1)
+
+                layers[i][v1].append(IWeightedGraph.Adjacency(v2 + counter, random.randint(1, 10)))
+
+        counter += len(layers[n-1])
+        for i in range(len(layers[n-1])):
+            layers[n-1][i].append(IWeightedGraph.Adjacency(counter, random.randint(1, 10)))
+
+        basin = [IWeightedGraph.Adjacency(i+1, random.randint(1, 10))
+                 for i in range(len(layers[0]))]
+        output = [basin] + [vertex for layer in layers for vertex in layer] + [[]]
+
+        possibilities = [(j + 1,i + 1) for j in range(counter-1) for i in range(j+1, counter-1)
+                         if i != j]
+
+        for vertex in range(1,len(output)):
+            for adj in output[vertex]:
+                a = adj.vertex
+                b = vertex
+                if a > b:
+                    a,b = b,a
+                try:
+                    possibilities.remove((a,b))
+                except ValueError:
+                    pass
+
+        new_vertices = random.sample(possibilities, 2*n)
+        for i in new_vertices:
+            a = i[0]
+            b = i[1]
+            if random.randint(0,1) == 0:
+                a,b = b,a
+            output[a].append(IWeightedGraph.Adjacency(b, random.randint(1, 10)))
+
+        return WeightedDigraph(output)
 
     @staticmethod
     def __print_result(plist, dlist):
