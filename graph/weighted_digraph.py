@@ -3,7 +3,7 @@ import ctypes
 import random
 from copy import deepcopy
 import networkx as nx
-import matplotlib.pyplot as pltfrom
+import matplotlib.pyplot as plt
 from typing import Self
 from graph import IDirectedGraph, IWeightedGraph
 
