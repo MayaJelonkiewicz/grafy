@@ -181,17 +181,15 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
         P = [[0 for _ in range(self.vertex_count)] for _ in range(self.vertex_count)]
         
         p0 = [ 1. / self.vertex_count for _ in range(self.vertex_count)]
-        p0_next = []
+        p0_next = p0
 
         for i in range(len(adj_mat)):
             for j in range(len(adj_mat[i])):
                 P[i][j] = (1 - d)*(adj_mat[i][j]/v_degrees[i]) + (d / self.vertex_count)
 
-        # print(P)
-        N=10
         for i in range(N):
-            if i != 0: 
-                p0 = p0_next
+
+            p0 = p0_next
 
             p0_next = np.dot(p0, P)
 
@@ -200,6 +198,7 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
             check = np.sqrt(sum(sub**2))
 
             if check < eps:
+                print(f"\nStopped at iter: {i}")
                 break
             
 
