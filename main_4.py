@@ -1,6 +1,7 @@
 import argparse
 import sys
 from graph import Digraph
+from graph import WeightedDigraph
 
 
 def task1(arguments):
@@ -14,6 +15,11 @@ def task2(_):
 def task3(arguments):
     result=Digraph.Bellman_Ford(arguments.n,arguments.p,arguments.v)
     print(result[0])
+
+def task4(_):
+    asdf = sys.stdin.read()
+    result = WeightedDigraph.parse(asdf).johnson(verbose=True)
+    print(result)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -30,6 +36,8 @@ def main():
     subparser_3.add_argument("p", type=float)
     subparser_3.add_argument("v", type=int)
 
+    subparsers.add_parser("4")
+
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
 
@@ -39,6 +47,8 @@ def main():
         task2(arguments)
     elif arguments.task == 3:
         task3(arguments)
+    elif arguments.task == 4:
+        task4(arguments)
 
 
 if __name__ == "__main__":
