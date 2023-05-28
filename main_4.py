@@ -23,7 +23,7 @@ def main():
     subparser_1.add_argument("n", type=int)
     subparser_1.add_argument("p", type=float)
 
-    subparser_2 = subparsers.add_parser("2")
+    subparsers.add_parser("2")
 
     subparser_3 = subparsers.add_parser("3")
     subparser_3.add_argument("n", type=int)

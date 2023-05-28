@@ -1,4 +1,5 @@
 from __future__ import annotations
+import ctypes
 from random import randrange
 from copy import deepcopy
 import networkx as nx
@@ -8,6 +9,8 @@ from graph import IDirectedGraph, IWeightedGraph
 
 class WeightedDigraph(IDirectedGraph, IWeightedGraph):
     """A weighted directed graph stored as an adjacency list"""
+
+    _approximate_tsp = None
 
     def add_edge(self, vertex_a, vertex_b, weight):
         self.adjacency_list[vertex_a].append(
@@ -129,16 +132,16 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
                 print(f"Vertex {i}: {dijkstra_d}")
         # returning the reweighted graph
         return new_graph
-    
-    def Edmonds_Karp(self, s: int, t: int,name:str) -> int:
+
+    def Edmonds_Karp(self, s: int, t: int, name: str) -> int:
         """Edmonds-Karp algorithm, returns maximum flow in digraph."""
-        adjacency_list=[]
+        adjacency_list = []
         for i in range(len(self.adjacency_list)):
             adjacency_list.append([])
             for j in range(len(self.adjacency_list[i])):
-                elem=self.adjacency_list[i][j]
-                adjacency_list[i].append((elem.vertex,elem.weight))
-        n=len(self.adjacency_list)
+                elem = self.adjacency_list[i][j]
+                adjacency_list[i].append((elem.vertex, elem.weight))
+        n = len(self.adjacency_list)
         fmax = 0
         F = [[0 for i in range(n)] for j in range(n)]
         C = [[0 for i in range(n)] for j in range(n)]
@@ -217,6 +220,34 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
             tab.insert(0, i)
             print(tab[::-1])
             tab = []
+
+    @classmethod
+    def find_approximate_2d_tsp_solution(cls, points, temperature_iteration_count, inner_iteration_count) -> list[int]:
+        """Finds an approximate solution for the travelling salesman problem in 2 dimensions
+        Returns the solution as an ordering of indices into the provided list of points."""
+
+        class CPoint(ctypes.Structure):
+            """ctypes-compatible structure for a 2-dimensional point"""
+            _fields_ = [("x", ctypes.c_int), ("y", ctypes.c_int)]
+
+        if cls._approximate_tsp is None:
+            cls._approximate_tsp = ctypes.CDLL("tsp/libtsp.so").approximate_tsp
+            cls._approximate_tsp.argtypes = ctypes.POINTER(
+                CPoint), ctypes.c_size_t, ctypes.c_int
+            cls._approximate_tsp.restype = ctypes.POINTER(ctypes.c_int)
+
+        points_array = (CPoint * len(points))()
+        for index, point in enumerate(points):
+            points_array[index] = CPoint(point[0], point[1])
+
+        # pylint: disable=not-callable
+        order_array = cls._approximate_tsp(
+            points_array,
+            len(points),
+            temperature_iteration_count,
+            inner_iteration_count,
+        )
+        return [order_array[i] for i in range(len(points))]
 
 
 if __name__ == "__main__":
