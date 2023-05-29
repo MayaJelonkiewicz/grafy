@@ -99,7 +99,7 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
             self.__print_result(p, d)
         return d
 
-    def johnson(self, verbose: bool = False):
+    def johnson(self, verbose: bool = False) -> list[list]:
         """algorithm for finding all pairs shortest path"""
 
         # adding a new vertex to the graph
@@ -117,6 +117,7 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
 
         # creating a new graph, b-f reweighting
         new_graph = WeightedDigraph(deepcopy(self.adjacency_list))
+        d = []
         for i in range(self.vertex_count):
             for j in range(len(new_graph.adjacency_list[i])):
                 new_graph.adjacency_list[i][j].weight = new_graph.adjacency_list[i][j].weight + \
@@ -128,11 +129,16 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
             for j in range(self.vertex_count):
                 if dijkstra_d[j] != float('inf'):
                     dijkstra_d[j] = dijkstra_d[j] + bellf_d[j] - bellf_d[i]
-            # printing the results
-            if verbose:
-                print(f"Vertex {i}: {dijkstra_d}")
-        # returning the reweighted graph
-        return new_graph
+            d.append(dijkstra_d)
+
+        # printing reweighted graph
+        if verbose:
+            print("--------------------")
+            print(f"Reweighted Graph:")
+            print(new_graph)
+            print("--------------------")
+        # returning result matrix
+        return d
 
     def Edmonds_Karp(self, s: int, t: int, name: str) -> int:
         """Edmonds-Karp algorithm, returns maximum flow in digraph."""

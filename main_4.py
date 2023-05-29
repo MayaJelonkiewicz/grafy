@@ -19,10 +19,10 @@ def task3(arguments):
     print(result[0])
 
 
-def task4(_):
+def task4(arguments):
     asdf = sys.stdin.read()
-    result = WeightedDigraph.parse(asdf).johnson(verbose=True)
-    print(result)
+    result = WeightedDigraph.parse(asdf).johnson(verbose=arguments.v)
+    for i in result : print(i)
 
 
 def main():
@@ -40,7 +40,8 @@ def main():
     subparser_3.add_argument("p", type=float)
     subparser_3.add_argument("v", type=int)
 
-    subparsers.add_parser("4")
+    subparser_4 = subparsers.add_parser("4")
+    subparser_4.add_argument("v", type=bool, default=False, nargs='?')
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
