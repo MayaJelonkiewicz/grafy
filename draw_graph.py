@@ -1,78 +1,35 @@
 import argparse
 import sys
 import pygraphviz as pgv
-from graph import Graph, Digraph, WeightedGraph
+from graph import Digraph, Graph, IGraph, IDirectedGraph, IWeightedGraph, WeightedDigraph, WeightedGraph
 
 
-def draw_digraph(toDraw: Digraph, layout="circo"):
-
-    if layout.casefold() == "circo" or layout.casefold() == "neato" or layout.casefold() == "dot":
-        G = pgv.AGraph(directed=True, overlap=False)
-        nodelist = [i for i in range(toDraw.vertex_count)]
-
-        G.add_nodes_from(nodelist)
-        G.node_attr['shape'] = 'circle'
-        G.node_attr['color'] = 'blue'
-        G.edge_attr['arrowsize'] = 0.75
-        G.graph_attr['mindist'] = 0
-        G.graph_attr['scale'] = 2
-        G.graph_attr['size'] = (2, 2)
-
-        for i in range(toDraw.vertex_count):
-            for j in range(len(toDraw.adjacency_list[i])):
-                G.add_edge(i, toDraw.adjacency_list[i][j])
-
-        G.layout(prog=layout)
-        G.draw("graph.png")
-    else:
-        raise ValueError("Invalid layout.")
-
-
-def draw_graph(toDraw: Graph, layout="circo"):
+def draw_graph(graph: IGraph, layout="circo"):
+    directed = isinstance(graph, IDirectedGraph)
+    weighted = isinstance(graph, IWeightedGraph)
 
     if layout.casefold() == "circo" or layout.casefold() == "neato" or layout.casefold() == "dot":
-        G = pgv.AGraph(overlap=False)
-        nodelist = [i for i in range(toDraw.vertex_count)]
+        agraph = pgv.AGraph(directed=directed, overlap=False)
+        nodelist = [i for i in range(graph.vertex_count)]
 
-        G.add_nodes_from(nodelist)
-        G.node_attr['shape'] = 'circle'
-        G.node_attr['color'] = 'blue'
-        G.edge_attr['arrowsize'] = 0.75
-        G.graph_attr['mindist'] = 0
-        G.graph_attr['scale'] = 2
-        G.graph_attr['size'] = (2, 2)
+        agraph.add_nodes_from(nodelist)
+        agraph.node_attr['shape'] = 'circle'
+        agraph.node_attr['color'] = 'blue'
+        agraph.edge_attr['arrowsize'] = 0.75
+        agraph.graph_attr['mindist'] = 0
+        agraph.graph_attr['scale'] = 2
+        agraph.graph_attr['size'] = (2, 2)
 
-        for i in range(toDraw.vertex_count):
-            for j in range(len(toDraw.adjacency_list[i])):
-                G.add_edge(i, toDraw.adjacency_list[i][j])
+        for i in range(graph.vertex_count):
+            for j in range(len(graph.adjacency_list[i])):
+                if weighted:
+                    agraph.add_edge(i, graph.adjacency_list[i][j].vertex, weight=graph.adjacency_list[i]
+                               [j].weight, label=graph.adjacency_list[i][j].weight, fontcolor='red')
+                else:
+                    agraph.add_edge(i, graph.adjacency_list[i][j])
 
-        G.layout(prog=layout)
-        G.draw("graph.png")
-    else:
-        raise ValueError("Invalid layout.")
-
-
-def draw_weighted_graph(toDraw: WeightedGraph, layout="circo"):
-
-    if layout.casefold() == "circo" or layout.casefold() == "neato" or layout.casefold() == "dot":
-        G = pgv.AGraph(overlap=False)
-        nodelist = [i for i in range(toDraw.vertex_count)]
-
-        G.add_nodes_from(nodelist)
-        G.node_attr['shape'] = 'circle'
-        G.node_attr['color'] = 'blue'
-        G.edge_attr['arrowsize'] = 0.75
-        G.graph_attr['mindist'] = 0
-        G.graph_attr['scale'] = 2
-        G.graph_attr['size'] = (2, 2)
-
-        for i in range(toDraw.vertex_count):
-            for j in range(len(toDraw.adjacency_list[i])):
-                G.add_edge(i, toDraw.adjacency_list[i][j].vertex, weight=toDraw.adjacency_list[i]
-                           [j].weight, label=toDraw.adjacency_list[i][j].weight, fontcolor='red')
-
-        G.layout(prog=layout)
-        G.draw("graph.png")
+        agraph.layout(prog=layout)
+        agraph.draw("graph.png")
     else:
         raise ValueError("Invalid layout.")
 
@@ -80,13 +37,24 @@ def draw_weighted_graph(toDraw: WeightedGraph, layout="circo"):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", "--weighted", action="store_true")
+    parser.add_argument("-d", "--directed", action="store_true")
+    parser.add_argument("-o", "--output-filename", default="graph.png")
 
     arguments = parser.parse_args()
 
-    if arguments.weighted:
-        draw_weighted_graph(WeightedGraph.parse(sys.stdin.read()), "dot")
-    else:
-        draw_graph(Graph.parse(sys.stdin.read()), "dot")
+    graph_cls = None
+    match (arguments.directed, arguments.weighted):
+        case (False, False):
+            graph_cls = Graph
+        case (False, True):
+            graph_cls = WeightedGraph
+        case (True, False):
+            graph_cls = Digraph
+        case (True, True):
+            graph_cls = WeightedDigraph
+    assert graph_cls is not None
+
+    draw_graph(graph_cls.parse(sys.stdin.read()), "dot")
 
 
 if __name__ == "__main__":
