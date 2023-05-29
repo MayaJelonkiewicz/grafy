@@ -5,21 +5,25 @@ from graph import WeightedDigraph
 
 
 def task1(arguments):
-    print(Digraph.generate_with_gnp_model(arguments.n, arguments.p).dump())
+    print(Digraph.generate_with_gnp_model(
+        arguments.n, arguments.p).dump(), end="")
 
 
 def task2(_):
     for component in Digraph.parse(sys.stdin.read()).find_strongly_connected_components():
         print(' '.join(map(str, component)))
 
+
 def task3(arguments):
-    result=Digraph.Bellman_Ford(arguments.n,arguments.p,arguments.v)
+    result = Digraph.Bellman_Ford(arguments.n, arguments.p, arguments.v)
     print(result[0])
+
 
 def task4(_):
     asdf = sys.stdin.read()
     result = WeightedDigraph.parse(asdf).johnson(verbose=True)
     print(result)
+
 
 def main():
     parser = argparse.ArgumentParser()

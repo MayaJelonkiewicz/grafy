@@ -2,14 +2,15 @@ import argparse
 import sys
 from graph import WeightedDigraph
 
+
 def task1(arguments):
-    WDigraph= WeightedDigraph.generate_flow_graph(arguments.n)
-    print(WDigraph.dump())
+    WDigraph = WeightedDigraph.generate_flow_graph(arguments.n)
+    print(WDigraph.dump(), end="")
+
 
 def task2(arguments):
-    WDigraph= WeightedDigraph.parse(sys.stdin.read())
-    WDigraph.Edmonds_Karp(arguments.s,arguments.t,arguments.name)
-
+    WDigraph = WeightedDigraph.parse(sys.stdin.read())
+    WDigraph.Edmonds_Karp(arguments.s, arguments.t, arguments.name)
 
 
 def main():
@@ -31,7 +32,6 @@ def main():
         task1(arguments)
     elif arguments.task == 2:
         task2(arguments)
-    
 
 
 if __name__ == "__main__":
