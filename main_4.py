@@ -22,7 +22,11 @@ def task3(arguments):
 def task4(arguments):
     asdf = sys.stdin.read()
     result = WeightedDigraph.parse(asdf).johnson(verbose=arguments.v)
-    for i in result : print(i)
+    if result is None:
+        print("graph has negative cycle")
+    else:
+        for i in result:
+            print(i)
 
 
 def main():

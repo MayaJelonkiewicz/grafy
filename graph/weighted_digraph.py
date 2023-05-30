@@ -99,7 +99,7 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
             self.__print_result(p, d)
         return d
 
-    def johnson(self, verbose: bool = False) -> list[list]:
+    def johnson(self, verbose: bool = False) -> list[list] | None:
         """algorithm for finding all pairs shortest path"""
 
         # adding a new vertex to the graph
@@ -110,7 +110,7 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
         # running Bellman-Ford ,checking for negative cycles
         bellf_success, bellf_d = self.bellman_ford(n)
         if not bellf_success:
-            return False
+            return None
 
         # removing the new vertex from the graph
         self.adjacency_list.pop()
