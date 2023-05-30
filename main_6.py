@@ -40,14 +40,21 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="task", required=True)
 
-    subparser_1 = subparsers.add_parser("1")
-    subparser_1.add_argument("iteration_count", type=int)
-    subparser_1.add_argument("page_type", choices=[
-                             "random", "power"], type=str)
+    subparser_1 = subparsers.add_parser(
+        "1", help="apply PageRank analysis to a digraph")
+    subparser_1.add_argument("iteration_count", type=int,
+                             help="number of iterations")
+    subparser_1.add_argument("page_type", choices=["random", "power"],
+                             type=str, help="variant of the PageRank algorithm to use")
 
-    subparser_2 = subparsers.add_parser("2")
-    subparser_2.add_argument("temperature_iteration_count", type=int)
-    subparser_2.add_argument("inner_iteration_count", type=int)
+    subparser_2 = subparsers.add_parser(
+        "2", help="compute an approximate solution to"
+        " the travelling salesman problem in 2 dimensions")
+    subparser_2.add_argument(
+        "temperature_iteration_count", type=int,
+        help="number of iterations over the temperature variable")
+    subparser_2.add_argument("inner_iteration_count", type=int,
+                             help="number of iterations per temperature value")
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)

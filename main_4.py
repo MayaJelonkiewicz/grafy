@@ -33,19 +33,21 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="task", required=True)
 
-    subparser_1 = subparsers.add_parser("1")
-    subparser_1.add_argument("n", type=int)
-    subparser_1.add_argument("p", type=float)
+    subparser_1 = subparsers.add_parser("1", help="generate a random digraph")
+    subparser_1.add_argument(
+        "n", type=int, help="number of vertices in the generated graph")
+    subparser_1.add_argument(
+        "p", type=float, help="probability of an edge existing between any two vertices")
 
-    subparsers.add_parser("2")
+    subparsers.add_parser("2", help="find all strongly connected components of a digraph")
 
-    subparser_3 = subparsers.add_parser("3")
-    subparser_3.add_argument("n", type=int)
-    subparser_3.add_argument("p", type=float)
-    subparser_3.add_argument("v", type=int)
+    subparser_3 = subparsers.add_parser("3", help="generate a random weighted digraph and find all the shortest paths from a given vertex in that graph")
+    subparser_3.add_argument("n", type=int, help="number of vertices in the generated graph")
+    subparser_3.add_argument("p", type=float, help="probability of an edge existing between any two vertices")
+    subparser_3.add_argument("v", type=int, help="index of the vertex to search for shortest paths from")
 
-    subparser_4 = subparsers.add_parser("4")
-    subparser_4.add_argument("v", type=bool, default=False, nargs='?')
+    subparser_4 = subparsers.add_parser("4", help="find all the shortest paths between vertices in a weighted digraph")
+    subparser_4.add_argument("v", action="store_true", help="verbose output")
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)

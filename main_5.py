@@ -17,13 +17,17 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="task", required=True)
 
-    subparser_1 = subparsers.add_parser("1")
-    subparser_1.add_argument("n", type=int)
+    subparser_1 = subparsers.add_parser(
+        "1", help="generate random flow network (weighted digraph)")
+    subparser_1.add_argument("n", type=int, help="number of layers")
 
-    subparser_2 = subparsers.add_parser("2")
-    subparser_2.add_argument("s", type=int)
-    subparser_2.add_argument("t", type=int)
-    subparser_2.add_argument("name", type=str)
+    subparser_2 = subparsers.add_parser(
+        "2", help="calculate maximum flow in a flow network (weighted digraph)"
+        " and draw graph with flows visualised")
+    subparser_2.add_argument("s", type=int, help="index of the source vertex")
+    subparser_2.add_argument("t", type=int, help="index of the sink vertex")
+    subparser_2.add_argument(
+        "name", type=str, default="graph", help="filename for the graph drawing")
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
