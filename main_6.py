@@ -32,7 +32,7 @@ def task2(arguments):
         x_difference = second_position[0] - first_position[0]
         y_difference = second_position[1] - first_position[1]
         distance += math.sqrt(x_difference ** 2 + y_difference ** 2)
-        
+
     print(distance)
     print("\n".join(lines[i] for i in order))
 
