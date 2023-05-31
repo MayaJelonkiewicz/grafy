@@ -10,7 +10,7 @@ def task1(arguments):
 
 def task2(arguments):
     WDigraph = WeightedDigraph.parse(sys.stdin.read())
-    WDigraph.Edmonds_Karp(arguments.s, arguments.t, arguments.name)
+    WDigraph.Edmonds_Karp(arguments.s, arguments.t, arguments.filename)
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
     subparser_2.add_argument("s", type=int, help="index of the source vertex")
     subparser_2.add_argument("t", type=int, help="index of the sink vertex")
     subparser_2.add_argument(
-        "name", type=str, default="graph", help="filename for the graph drawing")
+        "filename", type=str, default="graph", nargs="?", help="filename for the graph drawing")
 
     arguments = parser.parse_args()
     arguments.task = int(arguments.task)
