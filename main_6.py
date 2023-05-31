@@ -20,11 +20,10 @@ def task1(arguments):
 
 
 def task2(arguments):
-    points = [tuple(map(int, line.split()))
-              for line in sys.stdin.read().splitlines()]
+    lines = sys.stdin.read().splitlines()
+    points = [tuple(map(int, line.split())) for line in lines]
     order = WeightedDigraph.find_approximate_2d_tsp_solution(
         points, arguments.temperature_iteration_count, arguments.inner_iteration_count)
-    print(" ".join(map(str, order)))
 
     ordered_points = [points[i] for i in order]
     distance = 0.0
@@ -33,7 +32,9 @@ def task2(arguments):
         x_difference = second_position[0] - first_position[0]
         y_difference = second_position[1] - first_position[1]
         distance += math.sqrt(x_difference ** 2 + y_difference ** 2)
+        
     print(distance)
+    print("\n".join(lines[i] for i in order))
 
 
 def main():
