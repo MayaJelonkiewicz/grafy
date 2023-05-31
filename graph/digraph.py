@@ -83,6 +83,9 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
         choice = random.randint(0, self.vertex_count-1)
         d = 0.15
 
+        if any(len(self.adjacency_list[i]) == 0 for i in range(self.vertex_count)):
+            raise ValueError("at least one vertex is of degree 0")
+
         for _ in range(N):
             rand = random.random()
 
@@ -112,6 +115,9 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
                 adj_mat[i][v] = 1
 
         v_degrees = [len(self.adjacency_list[i]) for i in range(self.vertex_count)]
+
+        if min(v_degrees) == 0:
+            raise ValueError("at least one vertex is of degree 0")
 
         P = [[0 for _ in range(self.vertex_count)] for _ in range(self.vertex_count)]
         
