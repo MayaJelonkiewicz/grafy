@@ -14,8 +14,18 @@ def task2(_):
         print(' '.join(map(str, component)))
 
 
-def task3(arguments):
-    result = Digraph.Bellman_Ford(arguments.n, arguments.p, arguments.v)
+def task3a(arguments):
+    while True:
+        digraph = Digraph.generate_with_gnp_model(arguments.n, arguments.p)
+        if len(digraph.find_strongly_connected_components()) == 1:
+            break
+    
+    weighted_digraph = WeightedDigraph.generate_weighted_digraph(digraph, -5, 11)
+    print(weighted_digraph.dump(), end="")
+
+
+def task3b(arguments):
+    result = WeightedDigraph.parse(sys.stdin.read()).bellman_ford(arguments.v, True)
     print(result[0])
 
 
@@ -42,14 +52,18 @@ def main():
     subparsers.add_parser(
         "2", help="find all strongly connected components of a digraph")
 
-    subparser_3 = subparsers.add_parser(
-        "3", help="generate a random weighted digraph "
-        "and find all the shortest paths from a given vertex in that graph")
-    subparser_3.add_argument(
+    subparser_3a = subparsers.add_parser(
+        "3a", help="generate a random strongly connected weighted digraph"
+    )
+    subparser_3a.add_argument(
         "n", type=int, help="number of vertices in the generated graph")
-    subparser_3.add_argument(
+    subparser_3a.add_argument(
         "p", type=float, help="probability of an edge existing between any two vertices")
-    subparser_3.add_argument(
+
+    subparser_3b = subparsers.add_parser(
+        "3b", help="find all the shortest paths from a given vertex"
+        " in a strongly connected weighted digraph")
+    subparser_3b.add_argument(
         "v", type=int, help="index of the vertex to search for shortest paths from")
 
     subparser_4 = subparsers.add_parser(
@@ -58,15 +72,16 @@ def main():
         "-v", "--verbose", action="store_true", help="verbose output")
 
     arguments = parser.parse_args()
-    arguments.task = int(arguments.task)
 
-    if arguments.task == 1:
+    if arguments.task == "1":
         task1(arguments)
-    elif arguments.task == 2:
+    elif arguments.task == "2":
         task2(arguments)
-    elif arguments.task == 3:
-        task3(arguments)
-    elif arguments.task == 4:
+    elif arguments.task == "3a":
+        task3a(arguments)
+    elif arguments.task == "3b":
+        task3b(arguments)
+    elif arguments.task == "4":
         task4(arguments)
 
 
