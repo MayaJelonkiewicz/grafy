@@ -161,7 +161,7 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
         visits = visits / N
         res = {}
         for i in range(len(visits)):
-            res[f'{chr(i + ord("A"))}'] = round(visits[i], 6)
+            res[i] = round(visits[i], 6)
 
         return sorted(res.items(), key=lambda x:x[1], reverse=True)
 
@@ -204,7 +204,7 @@ class Digraph(IDirectedGraph, IUnweightedGraph):
 
         res = {}
         for i in range(len(p0_next)):
-            res[f'{chr(i + ord("A"))}'] = round(p0_next[i], 6)
+            res[i] = round(p0_next[i], 6)
 
         return sorted(res.items(), key=lambda x:x[1], reverse=True) 
 
