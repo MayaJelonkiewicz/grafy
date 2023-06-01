@@ -257,8 +257,8 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
 
         possibilities = [(j + 1,i + 1) for j in range(counter-1) for i in range(j+1, counter-1)
                          if i != j] + \
-                        [(0,i) for i in range(1, counter-1)] + \
-                        [(i,counter) for i in range(1, counter-1)]
+                        [(0,i) for i in range(1, counter)] + \
+                        [(i,counter) for i in range(1, counter)]
 
         for vertex in range(0,len(output)):
             for adj in output[vertex]:
