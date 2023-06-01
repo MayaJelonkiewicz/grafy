@@ -256,9 +256,11 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
         output = [basin] + [vertex for layer in layers for vertex in layer] + [[]]
 
         possibilities = [(j + 1,i + 1) for j in range(counter-1) for i in range(j+1, counter-1)
-                         if i != j]
+                         if i != j] + \
+                        [(0,i) for i in range(1, counter-1)] + \
+                        [(i,counter) for i in range(1, counter-1)]
 
-        for vertex in range(1,len(output)):
+        for vertex in range(0,len(output)):
             for adj in output[vertex]:
                 a = adj.vertex
                 b = vertex
@@ -274,6 +276,8 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
             a = i[0]
             b = i[1]
             if random.randint(0,1) == 0:
+                a,b = b,a
+            if b == 0 or a == counter:
                 a,b = b,a
             output[a].append(IWeightedGraph.Adjacency(b, random.randint(1, 10)))
 
