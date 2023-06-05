@@ -142,6 +142,7 @@ class WeightedDigraph(IDirectedGraph, IWeightedGraph):
 
     def Edmonds_Karp(self, s: int, t: int, name: str) -> int:
         """Edmonds-Karp algorithm, returns maximum flow in digraph."""
+        # https://eduinf.waw.pl/inf/alg/001_search/0146.php
         adjacency_list = []
         for i in range(len(self.adjacency_list)):
             adjacency_list.append([])
